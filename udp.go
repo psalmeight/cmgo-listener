@@ -25,13 +25,11 @@ var listenerManager *ListenerManager
 
 func (app *App) Start(port int) {
 	if listenerManager == nil {
-		fmt.Println("Nil new ", port)
 		listenerManager = NewListenerManager(app)
 	}
 }
 
 func (app *App) ToggleManager(port int) {
-	fmt.Println("Toggle ", port)
 	listenerManager.AddOrRemoveListener(port)
 }
 
@@ -58,7 +56,6 @@ func (lm *ListenerManager) AddOrRemoveListener(port int) error {
 	}
 
 	lm.listeners[port] = conn
-	fmt.Printf("Added listener on port %d\n", port)
 
 	go lm.listen(conn, port)
 
@@ -75,16 +72,13 @@ func (lm *ListenerManager) listen(conn *net.UDPConn, port int) {
 		}
 		msg := string(buffer[:n])
 
-		// Remove unwanted characters by using strings.Map
 		cleanMsg := strings.Map(func(r rune) rune {
-			// Keep only alphanumeric characters, spaces, commas, and periods
 			if unicode.IsLetter(r) || unicode.IsDigit(r) || r == ',' || r == ' ' || r == '.' {
 				return r
 			}
 			return -1 // Remove all other characters
 		}, msg)
 
-		// Split the cleaned message by commas
 		parts := strings.Split(cleanMsg, ",")
 		ip := strings.TrimSpace(parts[0])
 		lm.app.PokeMiner(ip, port)

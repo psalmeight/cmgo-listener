@@ -33,13 +33,11 @@ func (a *App) PokeMiner(ip string, port int) SystemInfo {
 	username := "root"
 	password := "root"
 
-	// Create a Resty client (supports Digest Auth)
 	client := resty.New()
 	client.SetTimeout(10 * time.Second)
 
-	// Make the GET request with Digest Authentication
 	resp, err := client.R().
-		SetDigestAuth(username, password). // Digest Auth
+		SetDigestAuth(username, password).
 		Get(url)
 
 	if err != nil {

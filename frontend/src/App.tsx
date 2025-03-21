@@ -8,7 +8,6 @@ import {
   CardBody,
   CardHeader,
   Flex,
-  Input,
   Table,
   TableContainer,
   Tbody,
@@ -56,7 +55,6 @@ function App() {
       );
     });
 
-    // Cleanup listener when the component unmounts
     return () => {
       EventsOff("responseEvent");
     };
@@ -108,7 +106,6 @@ function App() {
                           );
                         })
                       : null}
-                    {/* Add more rows as needed */}
                   </Tbody>
                 </Table>
               </TableContainer>
