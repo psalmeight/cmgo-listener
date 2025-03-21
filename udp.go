@@ -25,6 +25,7 @@ var listenerManager *ListenerManager
 
 func (app *App) Start(port int) {
 	if listenerManager == nil {
+		fmt.Println("Initiating new listener for port", port)
 		listenerManager = NewListenerManager(app)
 	}
 }
@@ -63,6 +64,7 @@ func (lm *ListenerManager) AddOrRemoveListener(port int) error {
 }
 
 func (lm *ListenerManager) listen(conn *net.UDPConn, port int) {
+	fmt.Println("Listening on port", port)
 	buffer := make([]byte, 1024)
 	for {
 		n, _, err := conn.ReadFromUDP(buffer)

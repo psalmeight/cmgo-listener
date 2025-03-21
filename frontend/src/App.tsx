@@ -29,13 +29,11 @@ function App() {
     { port: 4555, isListening: false, received: [] }
   ]);
 
-  const togglePortListen = (port: number) => {
+  const togglePortListen = async (port: number) => {
     if (listeningPorts.every(({ isListening }) => !isListening)) {
-      Start(port);
+      await Start(port);
     }
-
-    ToggleManager(port);
-    console.log("isListening ", listeningPorts.find((p) => p.port === port)?.isListening);
+    await ToggleManager(port);
     if (listeningPorts.find((p) => p.port === port)?.isListening) {
       setListeningPorts((prev) => prev.map((p) => (p.port === port ? { ...p, isListening: false } : p)));
     } else {

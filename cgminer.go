@@ -28,6 +28,7 @@ type SystemInfo struct {
 }
 
 func (a *App) PokeMiner(ip string, port int) SystemInfo {
+	fmt.Println("Fetch miner info ", ip)
 	var systemInfo SystemInfo
 	url := fmt.Sprintf("http://%s/cgi-bin/get_system_info.cgi", ip)
 	username := "root"
