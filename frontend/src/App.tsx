@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Start, ToggleManager } from "../wailsjs/go/main/App";
+import { useCallback, useEffect, useState } from "react";
+import { LoadPorts, Start, ToggleManager, SavePorts, Replace } from "../wailsjs/go/main/App";
 import { EventsOn, EventsOff } from "../wailsjs/runtime/runtime";
 import {
   Box,
@@ -8,6 +8,7 @@ import {
   CardBody,
   CardHeader,
   Flex,
+  Input,
   Table,
   TableContainer,
   Tbody,
@@ -19,15 +20,16 @@ import {
 } from "@chakra-ui/react";
 import { main } from "../wailsjs/go/models";
 function App() {
-  const [ports, _setPorts] = useState<number[]>([1234, 3434, 8888, 4555]);
+  const [portField, setPortField] = useState<number>();
   const [listeningPorts, setListeningPorts] = useState<
     { port: number; isListening: boolean; received: main.SystemInfo[] }[]
-  >([
-    { port: 1234, isListening: false, received: [] },
-    { port: 3434, isListening: false, received: [] },
-    { port: 8888, isListening: false, received: [] },
-    { port: 4555, isListening: false, received: [] }
-  ]);
+  >([]);
+
+  useEffect(() => {
+    LoadPorts().then((ports) => {
+      setListeningPorts(ports.map((port) => ({ port, isListening: false, received: [] })));
+    });
+  }, []);
 
   const togglePortListen = async (port: number) => {
     if (listeningPorts.every(({ isListening }) => !isListening)) {
@@ -40,6 +42,20 @@ function App() {
       setListeningPorts((prev) => prev.map((p) => (p.port === port ? { ...p, isListening: true } : p)));
     }
   };
+
+  const savePort = useCallback(() => {
+    if (portField) {
+      SavePorts(portField);
+      setListeningPorts((prev) => [...prev, { port: portField, isListening: false, received: [] }]);
+      setPortField(undefined);
+    }
+  }, [portField, SavePorts, setListeningPorts]);
+
+  const onRemove = (portToRemove: number) => {
+    const result = listeningPorts.filter((port) => port.port !== portToRemove).map((port) => port.port)
+    setListeningPorts((prev) => prev.filter((port) => port.port !== portToRemove))
+    Replace(result)
+  }
 
   useEffect(() => {
     EventsOn("responseEvent", (data: main.SystemInfo) => {
@@ -61,13 +77,10 @@ function App() {
   return (
     <Flex p={4} gap={4} height="100vh">
       <Box w="30%" p={4} borderWidth="1px" borderRadius="lg" boxShadow="md">
-        {/* <Input placeholder="Enter port" mb={4} size="md" onChange={(e) => setPort(Number(e.target.value))} />
-        <Button colorScheme="blue" width="full" onClick={() => {
-          if (port) {
-            startListening
-        }}>
-          {port ? "Stop Listening" : "Start Listening"}
-        </Button> */}
+        <Input placeholder="Enter port" mb={4} size="md" value={portField?.toString() || ""} onChange={(e) => setPortField(Number(e.target.value))} />
+        <Button colorScheme="blue" width="full" onClick={savePort}>
+          Add Port
+        </Button>
       </Box>
       <Box w="70%" p={4} borderWidth="1px" borderRadius="lg" boxShadow="md" height="fit-content">
         {listeningPorts.map((lPort) => (
@@ -78,6 +91,9 @@ function App() {
               </Text>
               <Button size="sm" onClick={() => togglePortListen(lPort.port)}>
                 {lPort.isListening ? "Stop" : "Listen"}
+              </Button>
+              <Button size="sm" onClick={() => onRemove(lPort.port)}>
+                Remove
               </Button>
             </CardHeader>
             <CardBody>
