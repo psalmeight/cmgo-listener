@@ -1,9 +1,9 @@
 #!/bin/bash
 echo "10.1.10.12,3C:A3:08:73:8C:6D" | socat - UDP-DATAGRAM::14235
 echo "10.2.2.34,3C:A3:08:73:8C:6D" | socat - UDP-DATAGRAM::14235
-echo "10.5.8.81,3C:A3:08:73:8C:6D" | socat - UDP-DATAGRAM::14235
-echo "10.3.10.72,3C:A3:08:73:8C:6D" | socat - UDP-DATAGRAM::14235
-echo "10.9.4.58,3C:A3:08:73:8C:6D" | socat - UDP-DATAGRAM::8888
-echo "10.9.9.65,3C:A3:08:73:8C:6D" | socat - UDP-DATAGRAM::8888
+echo "10.5.8.81,3C:A3:08:73:8C:6D" | socat - UDP-DATAGRAM::14236
+echo "10.3.10.72,3C:A3:08:73:8C:6D" | socat - UDP-DATAGRAM::14236
+echo "10.9.4.58,3C:A3:08:73:8C:6D" | socat - UDP-DATAGRAM::8887
+echo "10.9.9.65,3C:A3:08:73:8C:6D" | socat - UDP-DATAGRAM::8887
 echo "10.9.9.25,3C:A3:08:73:8C:6D" | socat - UDP-DATAGRAM::8888
 echo "10.9.9.42,3C:A3:08:73:8C:6D" | socat - UDP-DATAGRAM::8888

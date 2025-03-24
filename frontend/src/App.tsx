@@ -8,6 +8,7 @@ import {
   CardBody,
   CardHeader,
   Flex,
+  Heading,
   Input,
   Table,
   TableContainer,
@@ -78,6 +79,8 @@ function App() {
   }, []);
 
   return (
+    <Box padding={4}>
+      <Heading>CompassMining Listener</Heading>
     <Flex p={4} gap={4} height="100vh">
       <Box w="30%" p={4} borderWidth="1px" borderRadius="lg" boxShadow="md">
         <Input
@@ -137,6 +140,7 @@ function App() {
         ))}
       </Box>
     </Flex>
+    </Box>
   );
 }
 
