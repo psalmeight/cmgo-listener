@@ -52,7 +52,9 @@ function App() {
     }
   }, [portField, SavePorts, setListeningPorts]);
 
-  const onRemove = (portToRemove: number) => {
+  const onRemove = async (portToRemove: number) => {
+    await togglePortListen(portToRemove);
+
     const result = listeningPorts.filter((port) => port.port !== portToRemove).map((port) => port.port);
     setListeningPorts((prev) => prev.filter((port) => port.port !== portToRemove));
     Replace(result);
@@ -96,7 +98,7 @@ function App() {
               <Text fontSize="lg" fontWeight="bold" margin={0}>
                 Port: {lPort.port} {lPort.isListening ? "(Listening)" : ""}
               </Text>
-              <Button size="sm" onClick={() => togglePortListen(lPort.port)}>
+              <Button size="sm" onClick={() => togglePortListen(lPort.port)} colorScheme={lPort.isListening ? "red" : "teal"} mr={2}>
                 {lPort.isListening ? "Stop" : "Listen"}
               </Button>
               <Button size="sm" onClick={() => onRemove(lPort.port)}>

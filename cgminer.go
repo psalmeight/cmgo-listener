@@ -67,73 +67,141 @@ func TryAntminer(ctx context.Context, ip string, port int) (MinerInfo, error) {
 		fmt.Printf("Error parsing JSON: %v\n", err)
 		return minerInfo, err
 	}
+
+	fmt.Println("Antminer response:", response)
 	response.Port = port
 
-	minerInfo.MinerType = "Antminer"
+	minerInfo.MinerType = response.Minertype
 	minerInfo.Ip = ip
 	minerInfo.Mac = response.Macaddr
 	minerInfo.Port = fmt.Sprintf("%d", port)
 
+	fmt.Println("Antminer response:", minerInfo)
+
 	return minerInfo, nil
 }
 
-type WhatsMinerResponse struct {
-	STATUS string `json:"STATUS"`
+type DevDetailsResponse struct {
+	Status []struct {
+		Status string `json:"STATUS"`
+		Msg    string `json:"Msg"`
+	} `json:"STATUS"`
+	Devdetails []struct {
+		Devdetails int    `json:"DEVDETAILS"`
+		Name       string `json:"Name"`
+		ID         int    `json:"ID"`
+		Driver     string `json:"Driver"`
+		Kernel     string `json:"Kernel"`
+		Model      string `json:"Model"`
+	} `json:"DEVDETAILS"`
+	ID int `json:"id"`
+}
+
+type MinerInfoResponse struct {
+	Status string `json:"STATUS"`
 	When   int    `json:"When"`
 	Code   int    `json:"Code"`
 	Msg    struct {
-		IP       string `json:"ip"`
-		Proto    string `json:"proto"`
-		Netmask  string `json:"netmask"`
-		Gateway  string `json:"gateway"`
-		DNS      string `json:"dns"`
-		Hostname string `json:"hostname"`
-		Mac      string `json:"mac"`
-		Ledstat  string `json:"ledstat"`
-		Minersn  string `json:"minersn"`
-		Powersn  string `json:"powersn"`
+		Ntp      []string `json:"ntp"`
+		IP       string   `json:"ip"`
+		Proto    string   `json:"proto"`
+		Netmask  string   `json:"netmask"`
+		Gateway  string   `json:"gateway"`
+		DNS      string   `json:"dns"`
+		Hostname string   `json:"hostname"`
+		Mac      string   `json:"mac"`
+		Ledstat  string   `json:"ledstat"`
+		Minersn  string   `json:"minersn"`
+		Powersn  string   `json:"powersn"`
 	} `json:"Msg"`
 	Description string `json:"Description"`
 }
 
 func TryWhatsminer(ctx context.Context, ip string, port int) (MinerInfo, error) {
 	var minerInfo MinerInfo
+
+	model, err := getModel(ip)
+	if err != nil {
+		fmt.Println("Error fetching miner info: Whatsminer", err)
+		return minerInfo, err
+	}
+
+	miner, err := getMinerInfo(ip)
+	if err != nil {
+		fmt.Println("Error fetching miner info: Whatsminer", err)
+		return minerInfo, err
+	}
+
+	minerInfo.MinerType = fmt.Sprintf("%s %s", miner.Msg.Hostname, model)
+	minerInfo.Ip = miner.Msg.IP
+	minerInfo.Mac = miner.Msg.Mac
+	minerInfo.Port = fmt.Sprintf("%d", port)
+
+	fmt.Println("Whatsminer response:", minerInfo)
+
+	return minerInfo, nil
+}
+
+func getModel(ip string) (string, error) {
+	var devdetailsResponse DevDetailsResponse
 	address := net.JoinHostPort(ip, "4028")
-	message := `{"command":"get_miner_info","user":"admin","pass":"admin"}`
+	message := `{"command":"devdetails","user":"admin","pass":"admin"}`
 	conn, err := net.Dial("tcp", address)
 	if err != nil {
 		fmt.Println("Error connecting:", err)
-		return minerInfo, err
+		return "", err
 	}
 	defer conn.Close()
 
 	_, err = fmt.Fprintln(conn, message)
 	if err != nil {
 		fmt.Println("Error sending message:", err)
-		return minerInfo, err
+		return "", err
 	}
 
-	var response WhatsMinerResponse
 	decoder := json.NewDecoder(conn)
-	err = decoder.Decode(&response)
-	fmt.Println("Decoding here")
+	err = decoder.Decode(&devdetailsResponse)
+
 	if err != nil {
 		fmt.Println("Error decoding response:", err)
-		return minerInfo, err
+		return "", err
 	}
 
-	minerInfo.MinerType = response.Msg.Hostname
-	minerInfo.Ip = ip
-	minerInfo.Mac = response.Msg.Mac
-	minerInfo.Port = fmt.Sprintf("%d", port)
+	return devdetailsResponse.Devdetails[0].Model, nil
+}
 
-	return minerInfo, nil
+func getMinerInfo(ip string) (MinerInfoResponse, error) {
+	var minerInfoResponse MinerInfoResponse
+	address := net.JoinHostPort(ip, "4028")
+	message := `{"command":"get_miner_info","user":"admin","pass":"admin"}`
+	conn, err := net.Dial("tcp", address)
+	if err != nil {
+		fmt.Println("Error connecting:", err)
+		return minerInfoResponse, err
+	}
+	defer conn.Close()
+
+	_, err = fmt.Fprintln(conn, message)
+	if err != nil {
+		fmt.Println("Error sending message:", err)
+		return minerInfoResponse, err
+	}
+
+	decoder := json.NewDecoder(conn)
+	err = decoder.Decode(&minerInfoResponse)
+	if err != nil {
+		fmt.Println("Error decoding response:", err)
+		return minerInfoResponse, err
+	}
+
+	fmt.Println("Miner info response:", minerInfoResponse)
+
+	return minerInfoResponse, nil
 }
 
 func (a *App) PokeMiner(ip string, port int) MinerInfo {
 	var minerInfo MinerInfo
 
-	// Try Antminer first
 	if antminerInfo, err := TryAntminer(a.ctx, ip, port); err == nil {
 		runtime.EventsEmit(a.ctx, "responseEvent", antminerInfo)
 		return antminerInfo
@@ -141,7 +209,7 @@ func (a *App) PokeMiner(ip string, port int) MinerInfo {
 		fmt.Println("Error fetching miner info: Antminer", err)
 	}
 
-	// Try Whatsminer if Antminer failed
+	// If error ang antminer
 	var err error
 	minerInfo, err = TryWhatsminer(a.ctx, ip, port)
 	if err != nil {
