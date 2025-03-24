@@ -4,7 +4,7 @@ import {main} from '../models';
 
 export function LoadPorts():Promise<Array<number>>;
 
-export function PokeMiner(arg1:string,arg2:number):Promise<main.SystemInfo>;
+export function PokeMiner(arg1:string,arg2:number):Promise<main.MinerInfo>;
 
 export function Replace(arg1:Array<number>):Promise<void>;
 

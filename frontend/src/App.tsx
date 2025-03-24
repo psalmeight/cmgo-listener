@@ -19,10 +19,11 @@ import {
   Tr
 } from "@chakra-ui/react";
 import { main } from "../wailsjs/go/models";
+
 function App() {
   const [portField, setPortField] = useState<number>();
   const [listeningPorts, setListeningPorts] = useState<
-    { port: number; isListening: boolean; received: main.SystemInfo[] }[]
+    { port: number; isListening: boolean; received: main.MinerInfo[] }[]
   >([]);
 
   useEffect(() => {
@@ -52,16 +53,16 @@ function App() {
   }, [portField, SavePorts, setListeningPorts]);
 
   const onRemove = (portToRemove: number) => {
-    const result = listeningPorts.filter((port) => port.port !== portToRemove).map((port) => port.port)
-    setListeningPorts((prev) => prev.filter((port) => port.port !== portToRemove))
-    Replace(result)
-  }
+    const result = listeningPorts.filter((port) => port.port !== portToRemove).map((port) => port.port);
+    setListeningPorts((prev) => prev.filter((port) => port.port !== portToRemove));
+    Replace(result);
+  };
 
   useEffect(() => {
-    EventsOn("responseEvent", (data: main.SystemInfo) => {
+    EventsOn("responseEvent", (data: main.MinerInfo) => {
       setListeningPorts((prev) =>
         prev.map((response) => {
-          if (response.port === data.port) {
+          if (response.port === Number(data.port)) {
             return { ...response, received: [...response.received, data] };
           }
           return response;
@@ -77,7 +78,13 @@ function App() {
   return (
     <Flex p={4} gap={4} height="100vh">
       <Box w="30%" p={4} borderWidth="1px" borderRadius="lg" boxShadow="md">
-        <Input placeholder="Enter port" mb={4} size="md" value={portField?.toString() || ""} onChange={(e) => setPortField(Number(e.target.value))} />
+        <Input
+          placeholder="Enter port"
+          mb={4}
+          size="md"
+          value={portField?.toString() || ""}
+          onChange={(e) => setPortField(Number(e.target.value))}
+        />
         <Button colorScheme="blue" width="full" onClick={savePort}>
           Add Port
         </Button>
@@ -109,12 +116,12 @@ function App() {
                   </Thead>
                   <Tbody>
                     {lPort.received.length > 0
-                      ? lPort.received.map((r: main.SystemInfo) => {
+                      ? lPort.received.map((r: main.MinerInfo) => {
                           return (
                             <Tr>
-                              <Td>{r.minertype}</Td>
-                              <Td>{r.ipaddress}</Td>
-                              <Td>{r.macaddr}</Td>
+                              <Td>{r.minerType}</Td>
+                              <Td>{r.ip}</Td>
+                              <Td>{r.mac}</Td>
                               <Td>{r.port}</Td>
                             </Tr>
                           );
