@@ -10,6 +10,8 @@ import {
   Flex,
   Heading,
   Input,
+  NumberInput,
+  NumberInputField,
   Table,
   TableContainer,
   Tbody,
@@ -47,11 +49,17 @@ function App() {
 
   const savePort = useCallback(() => {
     if (portField) {
+      if (listeningPorts.map((p) => p.port).includes(portField)) {
+        return;
+      }
       SavePorts(portField);
       setListeningPorts((prev) => [...prev, { port: portField, isListening: false, received: [] }]);
-      setPortField(undefined);
     }
   }, [portField, SavePorts, setListeningPorts]);
+
+  useEffect(() => {
+    setPortField(undefined);
+  }, [listeningPorts]);
 
   const onRemove = async (portToRemove: number) => {
     await togglePortListen(portToRemove);
@@ -81,65 +89,80 @@ function App() {
   return (
     <Box padding={4}>
       <Heading>CompassMining Listener</Heading>
-    <Flex p={4} gap={4} height="100vh">
-      <Box w="30%" p={4} borderWidth="1px" borderRadius="lg" boxShadow="md">
-        <Input
-          placeholder="Enter port"
-          mb={4}
-          size="md"
-          value={portField?.toString() || ""}
-          onChange={(e) => setPortField(Number(e.target.value))}
-        />
-        <Button colorScheme="blue" width="full" onClick={savePort}>
-          Add Port
-        </Button>
-      </Box>
-      <Box w="70%" p={4} borderWidth="1px" borderRadius="lg" boxShadow="md" height="fit-content">
-        {listeningPorts.map((lPort) => (
-          <Card key={lPort.port} mb={4}>
-            <CardHeader pb={0}>
-              <Text fontSize="lg" fontWeight="bold" margin={0}>
-                Port: {lPort.port} {lPort.isListening ? "(Listening)" : ""}
-              </Text>
-              <Button size="sm" onClick={() => togglePortListen(lPort.port)} colorScheme={lPort.isListening ? "red" : "teal"} mr={2}>
-                {lPort.isListening ? "Stop" : "Listen"}
-              </Button>
-              <Button size="sm" onClick={() => onRemove(lPort.port)}>
-                Remove
-              </Button>
-            </CardHeader>
-            <CardBody>
-              <TableContainer>
-                <Table variant="simple">
-                  <Thead>
-                    <Tr>
-                      <Th>MinerType</Th>
-                      <Th>IPAddress</Th>
-                      <Th>Mac</Th>
-                      <Th>Port</Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
-                    {lPort.received.length > 0
-                      ? lPort.received.map((r: main.MinerInfo) => {
-                          return (
-                            <Tr>
-                              <Td>{r.minerType}</Td>
-                              <Td>{r.ip}</Td>
-                              <Td>{r.mac}</Td>
-                              <Td>{r.port}</Td>
-                            </Tr>
-                          );
-                        })
-                      : null}
-                  </Tbody>
-                </Table>
-              </TableContainer>
-            </CardBody>
-          </Card>
-        ))}
-      </Box>
-    </Flex>
+      <Flex p={4} gap={4}>
+        <Box w="30%" p={4} borderWidth="1px" borderRadius="lg" boxShadow="md">
+          <NumberInput value={portField?.toString() || ""}>
+            <NumberInputField
+              placeholder="Enter port"
+              onChange={(e) => {
+                const value = e.target.value.replace(/[^0-9]/g, "");
+                setPortField(Number(value));
+              }}
+              mb={2}
+            />
+          </NumberInput>
+          <Button colorScheme="blue" width="full" onClick={savePort} disabled={!portField}>
+            Add Port
+          </Button>
+        </Box>
+        <Box w="70%" p={4} borderWidth="1px" borderRadius="lg" boxShadow="md" minHeight="100%">
+          <Text fontSize="2xl">Registered ports</Text>
+          {listeningPorts.map((lPort) => (
+            <Card key={lPort.port} mb={4}>
+              <CardHeader pb={0}>
+                <Flex>
+                  <Box w="50%">
+                    <Text fontSize="lg" fontWeight="bold" margin={0} color={lPort.isListening ? "teal" : "black"}>
+                      Port: {lPort.port} {lPort.isListening ? "(Listening)" : ""}
+                    </Text>
+                  </Box>
+                  <Box w="50%" textAlign="right">
+                    <Button
+                      size="sm"
+                      onClick={() => togglePortListen(lPort.port)}
+                      colorScheme={lPort.isListening ? "red" : "teal"}
+                      mr={2}
+                    >
+                      {lPort.isListening ? "Stop" : "Listen"}
+                    </Button>
+                    <Button size="sm" onClick={() => onRemove(lPort.port)}>
+                      Remove
+                    </Button>
+                  </Box>
+                </Flex>
+              </CardHeader>
+              <CardBody>
+                <TableContainer>
+                  <Table variant="simple">
+                    <Thead>
+                      <Tr>
+                        <Th>MinerType</Th>
+                        <Th>IPAddress</Th>
+                        <Th>Mac</Th>
+                        <Th>Port</Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      {lPort.received.length > 0
+                        ? lPort.received.map((r: main.MinerInfo) => {
+                            return (
+                              <Tr>
+                                <Td>{r.minerType}</Td>
+                                <Td>{r.ip}</Td>
+                                <Td>{r.mac}</Td>
+                                <Td>{r.port}</Td>
+                              </Tr>
+                            );
+                          })
+                        : null}
+                    </Tbody>
+                  </Table>
+                </TableContainer>
+              </CardBody>
+            </Card>
+          ))}
+        </Box>
+      </Flex>
     </Box>
   );
 }

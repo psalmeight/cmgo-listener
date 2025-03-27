@@ -14,9 +14,8 @@ var assets embed.FS
 func main() {
 	app := NewApp()
 	err := wails.Run(&options.App{
-		Title:  "cmgo-listener",
-		Width:  1024,
-		Height: 768,
+		Title: "cmgo-listener",
+		Width: 1024,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

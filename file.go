@@ -11,6 +11,7 @@ import (
 func (app *App) LoadPorts() ([]int, error) {
 	file, err := os.Open("ports.txt")
 	if err != nil {
+		fmt.Println("error on opening ports.txt before loading ports", err)
 		return nil, err
 	}
 	defer file.Close()
@@ -22,7 +23,7 @@ func (app *App) LoadPorts() ([]int, error) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		fmt.Println("error 1 ", err)
+		fmt.Println("error upon checking scanner error", err)
 		return nil, err
 	}
 
@@ -40,16 +41,16 @@ func (app *App) LoadPorts() ([]int, error) {
 }
 
 func (app *App) SavePorts(port int) error {
-	fmt.Println("saving new port ", port)
 	file, err := os.OpenFile("ports.txt", os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
-		fmt.Println("error 2 ", err)
+		fmt.Println("error on opening ports.txt before save", err)
 		return err
 	}
 	defer file.Close()
 
 	info, err := file.Stat()
 	if err != nil {
+		fmt.Println("error on checking file stat before save", err)
 		return err
 	}
 
@@ -58,12 +59,19 @@ func (app *App) SavePorts(port int) error {
 	} else {
 		_, err = file.WriteString(fmt.Sprintf(",%d", port))
 	}
-	return err
+
+	if err != nil {
+		fmt.Println("error on writing to ports.txt", err)
+		return err
+	}
+
+	return nil
 }
 
 func (app *App) Replace(portsToReplace []int) error {
 	file, err := os.OpenFile("ports.txt", os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
+		fmt.Println("error upon opening ports.txt before replace", err)
 		return err
 	}
 	defer file.Close()
@@ -71,5 +79,7 @@ func (app *App) Replace(portsToReplace []int) error {
 	for _, port := range portsToReplace {
 		app.SavePorts(port)
 	}
+
+	fmt.Println("port(s) replaced")
 	return nil
 }
