@@ -1,21 +1,17 @@
 export namespace main {
 	
-	export class MinerInfo {
-	    minerType: string;
-	    ip: string;
-	    mac: string;
+	export class RawSignalMessage {
 	    port: string;
+	    message: string;
 	
 	    static createFrom(source: any = {}) {
-	        return new MinerInfo(source);
+	        return new RawSignalMessage(source);
 	    }
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.minerType = source["minerType"];
-	        this.ip = source["ip"];
-	        this.mac = source["mac"];
 	        this.port = source["port"];
+	        this.message = source["message"];
 	    }
 	}
 

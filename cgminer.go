@@ -19,6 +19,11 @@ type MinerInfo struct {
 	Port      string `json:"port"`
 }
 
+type RawSignalMessage struct {
+	Port    string `json:"port"`
+	Message string `json:"message"`
+}
+
 type AntminerResponse struct {
 	Minertype               string `json:"minertype"`
 	Nettype                 string `json:"nettype"`
@@ -199,22 +204,25 @@ func getMinerInfo(ip string) (MinerInfoResponse, error) {
 	return minerInfoResponse, nil
 }
 
-func (a *App) PokeMiner(ip string, port int) MinerInfo {
-	var minerInfo MinerInfo
+func (a *App) PokeMiner(ip string, port string, message string) RawSignalMessage {
+	var minerInfo RawSignalMessage
 
-	if antminerInfo, err := TryAntminer(a.ctx, ip, port); err == nil {
-		runtime.EventsEmit(a.ctx, "responseEvent", antminerInfo)
-		return antminerInfo
-	} else {
-		fmt.Println("Error fetching miner info: Antminer", err)
-	}
+	// if antminerInfo, err := TryAntminer(a.ctx, ip, port); err == nil {
+	// 	runtime.EventsEmit(a.ctx, "responseEvent", antminerInfo)
+	// 	return antminerInfo
+	// } else {
+	// 	fmt.Println("Error fetching miner info: Antminer", err)
+	// }
 
-	// If error ang antminer
-	var err error
-	minerInfo, err = TryWhatsminer(a.ctx, ip, port)
-	if err != nil {
-		fmt.Println("Error fetching miner info: Whatsminer", err)
-	}
+	// // If error ang antminer
+	// var err error
+	// minerInfo, err = TryWhatsminer(a.ctx, ip, port)
+	// if err != nil {
+	// 	fmt.Println("Error fetching miner info: Whatsminer", err)
+	// }
+
+	minerInfo.Message = message
+	minerInfo.Port = port
 
 	runtime.EventsEmit(a.ctx, "responseEvent", minerInfo)
 	return minerInfo

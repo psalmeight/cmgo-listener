@@ -6,8 +6,8 @@ export function LoadPorts() {
   return window['go']['main']['App']['LoadPorts']();
 }
 
-export function PokeMiner(arg1, arg2) {
-  return window['go']['main']['App']['PokeMiner'](arg1, arg2);
+export function PokeMiner(arg1, arg2, arg3) {
+  return window['go']['main']['App']['PokeMiner'](arg1, arg2, arg3);
 }
 
 export function Replace(arg1) {

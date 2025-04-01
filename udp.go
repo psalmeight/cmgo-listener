@@ -3,9 +3,8 @@ package main
 import (
 	"fmt"
 	"net"
-	"strings"
+	"strconv"
 	"sync"
-	"unicode"
 )
 
 type ListenerManager struct {
@@ -66,23 +65,26 @@ func (lm *ListenerManager) AddOrRemoveListener(port int) error {
 func (lm *ListenerManager) listen(conn *net.UDPConn, port int) {
 	fmt.Println("Listening on port", port)
 	buffer := make([]byte, 1024)
+
 	for {
 		n, _, err := conn.ReadFromUDP(buffer)
+
 		if err != nil {
 			fmt.Printf("Listener on port %d error: %v\n", port, err)
 			return
 		}
+
 		msg := string(buffer[:n])
 
-		cleanMsg := strings.Map(func(r rune) rune {
-			if unicode.IsLetter(r) || unicode.IsDigit(r) || r == ',' || r == ' ' || r == '.' {
-				return r
-			}
-			return -1 // Remove all other characters
-		}, msg)
+		// cleanMsg := strings.Map(func(r rune) rune {
+		// 	if unicode.IsLetter(r) || unicode.IsDigit(r) || r == ',' || r == ' ' || r == '.' {
+		// 		return r
+		// 	}
+		// 	return -1 // Remove all other characters
+		// }, msg)
 
-		parts := strings.Split(cleanMsg, ",")
-		ip := strings.TrimSpace(parts[0])
-		lm.app.PokeMiner(ip, port)
+		// parts := strings.Split(cleanMsg, ",")
+		// ip := strings.TrimSpace(parts[0])
+		lm.app.PokeMiner("", strconv.Itoa(port), msg)
 	}
 }
