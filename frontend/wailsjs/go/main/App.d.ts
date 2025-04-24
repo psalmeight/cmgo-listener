@@ -4,6 +4,6 @@ import {miners} from '../models';
 
 export function InitializePorts(arg1:Array<number>):Promise<void>;
 
-export function Probe(arg1:string,arg2:string,arg3:string):Promise<miners.RawSignalMessage>;
+export function Probe(arg1:string,arg2:string,arg3:string):Promise<miners.MinerInfo>;
 
 export function StartListeningPorts(arg1:Array<number>):Promise<void>;

@@ -2,9 +2,11 @@ package main
 
 import (
 	"cmgo-listener/miners"
+	"encoding/json"
 	"fmt"
 	"net"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -86,8 +88,22 @@ func (lm *Listener) listen(conn *net.UDPConn, port int) {
 	}
 }
 
-func (app *App) Probe(ip string, port string, message string) miners.RawSignalMessage {
-	var minerInfo miners.RawSignalMessage
+func (app *App) Probe(ip string, port string, message string) miners.MinerInfo {
+	var minerInfo miners.MinerInfo
+	var goldShellResponse miners.GoldShellIPReportResponse
+
+	ipMac := make([]string, 2)
+	intPort, _ := strconv.Atoi(port)
+
+	if intPort == 14235 {
+		ipMac = strings.Split(message, ",")
+	} else if intPort == 8888 {
+		ipMac = strings.Split(message[3:], "MAC:")
+	} else {
+		_ = json.Unmarshal([]byte(message), &goldShellResponse)
+		ipMac[0] = goldShellResponse.IP
+		ipMac[1] = goldShellResponse.Mac
+	}
 
 	// if antminerInfo, err := TryAntminer(a.ctx, ip, port); err == nil {
 	// 	runtime.EventsEmit(a.ctx, "responseEvent", antminerInfo)
@@ -103,7 +119,9 @@ func (app *App) Probe(ip string, port string, message string) miners.RawSignalMe
 	// 	fmt.Println("Error fetching miner info: Whatsminer", err)
 	// }
 
-	minerInfo.Message = message
+	minerInfo.Ip = ipMac[0]
+	minerInfo.Mac = ipMac[1]
+	minerInfo.Raw = message
 	minerInfo.Port = port
 
 	runtime.EventsEmit(app.ctx, "responseEvent", minerInfo)

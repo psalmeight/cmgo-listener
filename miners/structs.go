@@ -1,5 +1,21 @@
 package miners
 
+type GoldShellIPReportResponse struct {
+	Version   string      `json:"version"`
+	IP        string      `json:"ip"`
+	Dhcp      string      `json:"dhcp"`
+	Model     string      `json:"model"`
+	Ctrlsn    string      `json:"ctrlsn"`
+	Mac       string      `json:"mac"`
+	Mask      string      `json:"mask"`
+	Gateway   string      `json:"gateway"`
+	Cpbsn     []string    `json:"cpbsn"`
+	DNS       interface{} `json:"dns"`
+	Boxsn     string      `json:"boxsn"`
+	Time      string      `json:"time"`
+	Ledstatus bool        `json:"ledstatus"`
+}
+
 type RawSignalMessage struct {
 	Port    string `json:"port"`
 	Message string `json:"message"`
@@ -10,6 +26,7 @@ type MinerInfo struct {
 	Ip        string `json:"ip"`
 	Mac       string `json:"mac"`
 	Port      string `json:"port"`
+	Raw       string `json:"raw"`
 }
 
 type DevDetailsResponse struct {

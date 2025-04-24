@@ -44,12 +44,12 @@ const SiteMapper = () => {
   }, [ports]);
 
   useEffect(() => {
-    EventsOn("responseEvent", (data: miners.RawSignalMessage) => {
+    EventsOn("responseEvent", (data: miners.MinerInfo) => {
       setResponse((prevResponse) => {
         const lastColumn = prevResponse.map(({ column }) => column).sort((a, b) => b - a)[0] || 0;
         return [
           ...prevResponse,
-          { container, rack, row: 0, column: lastColumn + 1, port: data.port, raw: data.message } as RowInfo
+          { mac: data.mac, ip: data.ip, container, rack, row: 0, column: lastColumn + 1, port: data.port, raw: data.raw } as RowInfo
         ];
       });
     });
@@ -111,8 +111,7 @@ const SiteMapper = () => {
               <Table.ColumnHeader>Rack</Table.ColumnHeader>
               <Table.ColumnHeader>Row</Table.ColumnHeader>
               <Table.ColumnHeader>Column</Table.ColumnHeader>
-              <Table.ColumnHeader>Raw</Table.ColumnHeader>
-              <Table.ColumnHeader textAlign="end">Actions</Table.ColumnHeader>
+              <Table.ColumnHeader w={30}>Raw</Table.ColumnHeader>
             </Table.Row>
           </Table.Header>
           <Table.Body>
@@ -124,10 +123,7 @@ const SiteMapper = () => {
                 <Table.Cell>{item.rack}</Table.Cell>
                 <Table.Cell>{item.row}</Table.Cell>
                 <Table.Cell>{item.column}</Table.Cell>
-                <Table.Cell>{item.raw}</Table.Cell>
-                <Table.Cell textAlign="end">
-                  <Button size="xs">Action</Button>
-                </Table.Cell>
+                <Table.Cell w={30}>{item.raw}</Table.Cell>
               </Table.Row>
             ))}
           </Table.Body>
