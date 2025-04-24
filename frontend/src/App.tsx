@@ -7,7 +7,7 @@ import { main } from "../wailsjs/go/models";
 function App() {
   const [portField, setPortField] = useState<number>();
   const [listeningPorts, setListeningPorts] = useState<
-    { port: number; isListening: boolean; received: main.MinerInfo[] }[]
+    { port: number; isListening: boolean; received: main.RawSignalMessage[] }[]
   >([]);
 
   useEffect(() => {
@@ -51,7 +51,7 @@ function App() {
   };
 
   useEffect(() => {
-    EventsOn("responseEvent", (data: main.MinerInfo) => {
+    EventsOn("responseEvent", (data: main.RawSignalMessage) => {
       setListeningPorts((prev) =>
         prev.map((response) => {
           if (response.port === Number(data.port)) {
@@ -117,21 +117,17 @@ function App() {
                   <Table variant="simple">
                     <Thead>
                       <Tr>
-                        <Th>MinerType</Th>
-                        <Th>IPAddress</Th>
-                        <Th>Mac</Th>
-                        <Th>Port</Th>
+                        <Th w={2}>Port</Th>
+                        <Th>Message</Th>
                       </Tr>
                     </Thead>
                     <Tbody>
                       {lPort.received.length > 0
-                        ? lPort.received.map((r: main.MinerInfo) => {
+                        ? lPort.received.map((r: main.RawSignalMessage) => {
                             return (
                               <Tr>
-                                <Td>{r.minerType}</Td>
-                                <Td>{r.ip}</Td>
-                                <Td>{r.mac}</Td>
-                                <Td>{r.port}</Td>
+                                <Td width={2}>{r.port}</Td>
+                                <Td>{r.message}</Td>
                               </Tr>
                             );
                           })
