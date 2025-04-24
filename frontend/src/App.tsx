@@ -1,26 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { LoadPorts, Start, ToggleManager, SavePorts, Replace } from "../wailsjs/go/main/App";
 import { EventsOn, EventsOff } from "../wailsjs/runtime/runtime";
-import {
-  Box,
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Flex,
-  Heading,
-  Input,
-  NumberInput,
-  NumberInputField,
-  Table,
-  TableContainer,
-  Tbody,
-  Td,
-  Text,
-  Th,
-  Thead,
-  Tr
-} from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { main } from "../wailsjs/go/models";
 
 function App() {
@@ -88,7 +69,7 @@ function App() {
 
   return (
     <Box padding={4}>
-      <Heading>CompassMining Listener</Heading>
+      {/* <Heading>CompassMining Listener</Heading>
       <Flex p={4} gap={4}>
         <Box w="30%" p={4} borderWidth="1px" borderRadius="lg" boxShadow="md">
           <NumberInput value={portField?.toString() || ""}>
@@ -162,7 +143,7 @@ function App() {
             </Card>
           ))}
         </Box>
-      </Flex>
+      </Flex> */}
     </Box>
   );
 }
