@@ -6,8 +6,8 @@ export function InitializePorts(arg1) {
   return window['go']['main']['App']['InitializePorts'](arg1);
 }
 
-export function PokeMiner(arg1, arg2, arg3) {
-  return window['go']['main']['App']['PokeMiner'](arg1, arg2, arg3);
+export function Probe(arg1, arg2, arg3) {
+  return window['go']['main']['App']['Probe'](arg1, arg2, arg3);
 }
 
 export function StartListeningPorts(arg1) {

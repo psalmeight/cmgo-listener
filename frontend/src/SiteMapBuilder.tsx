@@ -1,33 +1,34 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Button, Field, Flex, Heading, Image, Input, Separator, Table, Text } from "@chakra-ui/react";
+import { InitializePorts, StartListeningPorts } from "../wailsjs/go/main/App";
+import { EventsOn, EventsOff } from "../wailsjs/runtime/runtime";
+import { miners } from "../wailsjs/go/models";
 import logo from "./assets/images/logo.svg";
 import FadingText from "./FadingText";
 
-const items: RowInfo[] = [
-  { id: 1, mac: "27:BB:A0:80:8E:0B", ip: "192.168.0.1", container: "C1", row: 0, column: 0 },
-  { id: 2, mac: "F5:7B:72:CA:2F:88", ip: "192.168.0.2", container: "C1", row: 0, column: 1 },
-  { id: 3, mac: "90:AE:3F:8F:8D:CE", ip: "192.168.0.3", container: "C1", row: 0, column: 2 },
-  { id: 4, mac: "FC:09:30:95:BF:AF", ip: "192.168.0.4", container: "C1", row: 0, column: 3 }
-];
-
 const buttonStyles = {
-  listening: {
-    bg: "pink",
-    color: "white"
-  },
-  normal: {
-    bg: "black",
-    color: "white"
-  }
+  listening: { bg: "pink", color: "white" },
+  normal: { bg: "black", color: "white" }
 };
+
+const ports = [
+  { port: 14235, firmware: "Antminer", disabled: true },
+  { port: 8888, firmware: "Whatsminer", disabled: true },
+  { port: 1314, firmware: "Goldshells", disabled: true },
+  { port: 0, firmware: "Canaan", disabled: true },
+  { port: 0, firmware: "Avalon", disabled: true }
+];
 
 interface RowInfo {
   id: number;
   mac: string;
+  port: string;
   ip: string;
   container: string;
+  rack: string;
   row: number;
   column: number;
+  raw: string;
 }
 
 const SiteMapper = () => {
@@ -36,9 +37,36 @@ const SiteMapper = () => {
   const [column, setColumn] = useState<number>(0);
   const [items, setItems] = useState<RowInfo[]>([]);
   const [listening, setListening] = useState<boolean>(false);
+  const [response, setResponse] = useState<RowInfo[]>([]);
+
+  useEffect(() => {
+    InitializePorts(ports.map(({ port }) => port));
+  }, [ports]);
+
+  useEffect(() => {
+    EventsOn("responseEvent", (data: miners.RawSignalMessage) => {
+      setResponse((prevResponse) => {
+        const lastColumn = prevResponse.map(({ column }) => column).sort((a, b) => b - a)[0] || 0;
+        return [
+          ...prevResponse,
+          { container, rack, row: 0, column: lastColumn + 1, port: data.port, raw: data.message } as RowInfo
+        ];
+      });
+    });
+
+    return () => {
+      EventsOff("responseEvent");
+    };
+  }, []);
+
+  useEffect(() => {
+    const lastColumn = response.map(({ column }) => column).sort((a, b) => b - a)[0] || 0;
+    setColumn(lastColumn + 1);
+  }, [response]);
 
   const toggleListening = () => {
     setListening((prev) => !prev);
+    StartListeningPorts(ports.map(({ port }) => port));
   };
 
   return (
@@ -58,42 +86,45 @@ const SiteMapper = () => {
           {/* Inputs */}
           <Field.Root>
             <Field.Label>Container Name</Field.Label>
-            <Input placeholder="Container name" defaultValue={container} />
+            <Input placeholder="Container name" value={container} />
           </Field.Root>
 
           <Field.Root>
             <Field.Label>Rack</Field.Label>
-            <Input placeholder="Rack (ex. R1)" defaultValue={rack} />
+            <Input placeholder="Rack (ex. R1)" value={rack} />
           </Field.Root>
 
           <Field.Root>
             <Field.Label>Rack Index (Autoincrements)</Field.Label>
-            <Input placeholder="Rack index" defaultValue={column} />
+            <Input placeholder="Rack index" value={column} />
           </Field.Root>
 
           <Button colorScheme="blue">Skip</Button>
         </Flex>
 
-        {/* Table */}
         <Table.Root size="sm">
           <Table.Header>
             <Table.Row>
               <Table.ColumnHeader>Mac Address</Table.ColumnHeader>
               <Table.ColumnHeader>IP Address</Table.ColumnHeader>
               <Table.ColumnHeader>Container</Table.ColumnHeader>
+              <Table.ColumnHeader>Rack</Table.ColumnHeader>
               <Table.ColumnHeader>Row</Table.ColumnHeader>
               <Table.ColumnHeader>Column</Table.ColumnHeader>
+              <Table.ColumnHeader>Raw</Table.ColumnHeader>
               <Table.ColumnHeader textAlign="end">Actions</Table.ColumnHeader>
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {items.map((item) => (
+            {response.map((item) => (
               <Table.Row key={item.id}>
                 <Table.Cell>{item.mac}</Table.Cell>
                 <Table.Cell>{item.ip}</Table.Cell>
                 <Table.Cell>{item.container}</Table.Cell>
+                <Table.Cell>{item.rack}</Table.Cell>
                 <Table.Cell>{item.row}</Table.Cell>
                 <Table.Cell>{item.column}</Table.Cell>
+                <Table.Cell>{item.raw}</Table.Cell>
                 <Table.Cell textAlign="end">
                   <Button size="xs">Action</Button>
                 </Table.Cell>
@@ -104,35 +135,16 @@ const SiteMapper = () => {
       </Box>
 
       <Flex align="flex-end" spaceX={2}>
-        <Field.Root>
-          <Field.Label>Antminer</Field.Label>
-          <Input placeholder="Antminer Port" value={14235} disabled />
-        </Field.Root>
-
-        <Field.Root>
-          <Field.Label>Whatsminer</Field.Label>
-          <Input placeholder="Whatsminer Port" value={8888} disabled />
-        </Field.Root>
-
-        <Field.Root>
-          <Field.Label>Goldshells</Field.Label>
-          <Input placeholder="Goldshells Port" value={1314} disabled />
-        </Field.Root>
-
-        <Field.Root>
-          <Field.Label>Canaan</Field.Label>
-          <Input placeholder="Canaan Port" disabled />
-        </Field.Root>
-
-        <Field.Root>
-          <Field.Label>Avalon</Field.Label>
-          <Input placeholder="Avalon Port" disabled />
-        </Field.Root>
+        {ports.map(({ firmware, port, disabled }, idx) => (
+          <Field.Root key={idx}>
+            <Field.Label>{firmware}</Field.Label>
+            <Input placeholder={`${firmware} port`} value={port} disabled={disabled} />
+          </Field.Root>
+        ))}
         <Button {...(listening ? buttonStyles.listening : buttonStyles.normal)} onClick={toggleListening}>
           {listening ? "Stop Listening" : "Start Listening"}
         </Button>
       </Flex>
-      {/* Button */}
     </Flex>
   );
 };

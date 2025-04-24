@@ -1,4 +1,4 @@
-export namespace main {
+export namespace miners {
 	
 	export class RawSignalMessage {
 	    port: string;

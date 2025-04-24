@@ -1,10 +1,13 @@
 package main
 
 import (
+	"cmgo-listener/miners"
 	"fmt"
 	"net"
 	"strconv"
 	"sync"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 var listener *Listener
@@ -70,28 +73,39 @@ func (lm *Listener) StartOrStopListening(port int) error {
 }
 
 func (lm *Listener) listen(conn *net.UDPConn, port int) {
-	fmt.Println("Listening on port", port)
+	fmt.Printf("Listening to port %d", port)
 	buffer := make([]byte, 1024)
-
 	for {
 		n, _, err := conn.ReadFromUDP(buffer)
-
 		if err != nil {
 			fmt.Printf("Listener on port %d error: %v\n", port, err)
 			return
 		}
-
 		msg := string(buffer[:n])
-
-		// cleanMsg := strings.Map(func(r rune) rune {
-		// 	if unicode.IsLetter(r) || unicode.IsDigit(r) || r == ',' || r == ' ' || r == '.' {
-		// 		return r
-		// 	}
-		// 	return -1 // Remove all other characters
-		// }, msg)
-
-		// parts := strings.Split(cleanMsg, ",")
-		// ip := strings.TrimSpace(parts[0])
-		lm.app.PokeMiner("", strconv.Itoa(port), msg)
+		lm.app.Probe("", strconv.Itoa(port), msg)
 	}
+}
+
+func (app *App) Probe(ip string, port string, message string) miners.RawSignalMessage {
+	var minerInfo miners.RawSignalMessage
+
+	// if antminerInfo, err := TryAntminer(a.ctx, ip, port); err == nil {
+	// 	runtime.EventsEmit(a.ctx, "responseEvent", antminerInfo)
+	// 	return antminerInfo
+	// } else {
+	// 	fmt.Println("Error fetching miner info: Antminer", err)
+	// }
+
+	// // If error ang antminer
+	// var err error
+	// minerInfo, err = TryWhatsminer(a.ctx, ip, port)
+	// if err != nil {
+	// 	fmt.Println("Error fetching miner info: Whatsminer", err)
+	// }
+
+	minerInfo.Message = message
+	minerInfo.Port = port
+
+	runtime.EventsEmit(app.ctx, "responseEvent", minerInfo)
+	return minerInfo
 }
