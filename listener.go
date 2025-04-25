@@ -2,8 +2,10 @@ package main
 
 import (
 	"cmgo-listener/miners"
+	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"strconv"
@@ -34,10 +36,61 @@ func NewListener(app *App) *Listener {
 // }
 
 func (app *App) ExportToCsv(data string) {
-	err := os.WriteFile("output.csv", []byte(data), 0644)
+	err := os.WriteFile("container-miners.csv", []byte(data), 0644)
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	DownloadCSV(app.ctx)
+}
+
+func DownloadCSV(ctx context.Context) {
+	// Define the path of your CSV file in the root folder
+	sourceFile := "container-miners.csv" // Ensure this file exists in your root directory
+
+	// Open the save file dialog
+	destPath, _ := runtime.SaveFileDialog(ctx, runtime.SaveDialogOptions{
+		Title:           "Save CSV File",
+		DefaultFilename: "container-miners.csv",
+		Filters: []runtime.FileFilter{
+			{DisplayName: "CSV Files (*.csv)", Pattern: "*.csv"},
+		},
+	})
+
+	// Check if a destination was selected
+	if destPath == "" {
+		fmt.Println("No file path selected")
+		return
+	}
+
+	// Copy the file to the selected destination
+	err := copyFile(sourceFile, destPath)
+	if err != nil {
+		fmt.Println("Error copying file:", err)
+		return
+	}
+
+	fmt.Println("CSV file downloaded successfully at:", destPath)
+}
+
+func copyFile(src, dest string) error {
+	// Open the source file
+	source, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer source.Close()
+
+	// Create the destination file
+	destination, err := os.Create(dest)
+	if err != nil {
+		return err
+	}
+	defer destination.Close()
+
+	// Copy contents
+	_, err = io.Copy(destination, source)
+	return err
 }
 
 func (app *App) InitializePorts(port []int) {
