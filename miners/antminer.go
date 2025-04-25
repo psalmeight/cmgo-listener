@@ -60,9 +60,8 @@ func TryAntminer(ctx context.Context, ip string, port int) (MinerInfo, error) {
 		return minerInfo, err
 	}
 
-	response.Port = port
 	minerInfo.MinerType = response.Minertype
-	minerInfo.Ip = ip
+	minerInfo.Ip = response.Ipaddress
 	minerInfo.Mac = response.Macaddr
 	minerInfo.Port = fmt.Sprintf("%d", port)
 

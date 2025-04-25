@@ -58,7 +58,5 @@ func GetMinerInfo(ip string) (MinerInfoResponse, error) {
 		return minerInfoResponse, err
 	}
 
-	fmt.Println("Miner info response:", minerInfoResponse)
-
 	return minerInfoResponse, nil
 }

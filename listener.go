@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -31,6 +32,13 @@ func NewListener(app *App) *Listener {
 // 	app
 // 	listeners: [{ 1234: connection, 2345: connection, 4556: connection }]
 // }
+
+func (app *App) ExportToCsv(data string) {
+	err := os.WriteFile("output.csv", []byte(data), 0644)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
 
 func (app *App) InitializePorts(port []int) {
 	if listener == nil {
@@ -89,7 +97,9 @@ func (lm *Listener) listen(conn *net.UDPConn, port int) {
 }
 
 func (app *App) Probe(ip string, port string, message string) miners.MinerInfo {
+
 	var minerInfo miners.MinerInfo
+	var err error
 	var goldShellResponse miners.GoldShellIPReportResponse
 
 	ipMac := make([]string, 2)
@@ -97,32 +107,24 @@ func (app *App) Probe(ip string, port string, message string) miners.MinerInfo {
 
 	if intPort == 14235 {
 		ipMac = strings.Split(message, ",")
+		if len(ipMac) > 0 {
+			minerInfo, err = miners.TryAntminer(app.ctx, ipMac[0], intPort)
+		}
 	} else if intPort == 8888 {
 		ipMac = strings.Split(message[3:], "MAC:")
+
+		if len(ipMac) > 0 {
+			minerInfo, err = miners.TryWhatsminer(app.ctx, ipMac[0], intPort)
+		}
 	} else {
 		_ = json.Unmarshal([]byte(message), &goldShellResponse)
 		ipMac[0] = goldShellResponse.IP
 		ipMac[1] = goldShellResponse.Mac
 	}
 
-	// if antminerInfo, err := TryAntminer(a.ctx, ip, port); err == nil {
-	// 	runtime.EventsEmit(a.ctx, "responseEvent", antminerInfo)
-	// 	return antminerInfo
-	// } else {
-	// 	fmt.Println("Error fetching miner info: Antminer", err)
-	// }
-
-	// // If error ang antminer
-	// var err error
-	// minerInfo, err = TryWhatsminer(a.ctx, ip, port)
-	// if err != nil {
-	// 	fmt.Println("Error fetching miner info: Whatsminer", err)
-	// }
-
-	minerInfo.Ip = ipMac[0]
-	minerInfo.Mac = ipMac[1]
-	minerInfo.Raw = message
-	minerInfo.Port = port
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	runtime.EventsEmit(app.ctx, "responseEvent", minerInfo)
 	return minerInfo
