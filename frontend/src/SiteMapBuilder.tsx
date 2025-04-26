@@ -2,22 +2,26 @@ import { useEffect, useState } from "react";
 import {
   Box,
   Button,
+  EmptyState,
   Field,
   Flex,
   Heading,
+  IconButton,
   Image,
   Input,
-  NumberInput,
   Separator,
   Switch,
   Table,
-  Text
+  Text,
+  VStack
 } from "@chakra-ui/react";
 import { ExportToCsv, InitializePorts, StartListeningPorts } from "../wailsjs/go/main/App";
 import { EventsOn, EventsOff } from "../wailsjs/runtime/runtime";
 import { miners } from "../wailsjs/go/models";
 import logo from "./assets/images/logo.svg";
 import FadingText from "./FadingText";
+import { FiTrash2, FiInbox } from "react-icons/fi";
+
 import { mkConfig, generateCsv, asString } from "export-to-csv";
 const csvConfig = mkConfig({ useKeysAsHeaders: true });
 const addNewLine = (s: string): string => s + "\n";
@@ -52,16 +56,13 @@ const SiteMapper = () => {
   const [rack, setRack] = useState<string>("R1");
   const [row, setRow] = useState<number>(0);
   const [column, setColumn] = useState<number>(0);
-  const [receivedResponses, setReceivedResponses] = useState<miners.MinerInfo[]>([]);
   const [listening, setListening] = useState<boolean>(false);
   const [response, setResponse] = useState<RowInfo[]>([]);
   const [autoIncrement, setAutoIncrement] = useState<boolean>(false);
 
   useEffect(() => {
     InitializePorts(ports.map(({ port }) => port));
-  }, [ports]);
 
-  useEffect(() => {
     EventsOn("responseEvent", (minerInfo: miners.MinerInfo) => {
       processMinerInfo(minerInfo);
     });
@@ -69,13 +70,11 @@ const SiteMapper = () => {
     return () => {
       EventsOff("responseEvent");
     };
-  }, []);
+  }, [ports, autoIncrement]);
 
   const processMinerInfo = (minerInfo: miners.MinerInfo) => {
     setResponse((prevResponse) => {
       const { mac, ip, port, raw, minerType } = minerInfo;
-      // const columns = prevResponse.map(({ column }) => column);
-      // const lastColumn = Math.max(...columns) || 0;
       return [
         ...prevResponse,
         {
@@ -84,7 +83,7 @@ const SiteMapper = () => {
           container,
           rack,
           row,
-          column,
+          column: autoIncrement ? getLastColumn() : 0,
           port,
           raw,
           miner: minerType
@@ -93,10 +92,18 @@ const SiteMapper = () => {
     });
   };
 
+  const getLastColumn = (): number => {
+    if (response.length === 0) {
+      return 0;
+    }
+    const columns = response.map(({ column }) => column);
+    const lastColumn = Math.max(...columns) || 0;
+    return lastColumn + 1;
+  };
+
   useEffect(() => {
     if (autoIncrement) {
-      const lastColumn = response.map(({ column }) => column).sort((a, b) => b - a)[0] || 0;
-      setColumn(lastColumn + 1);
+      setColumn(getLastColumn());
     }
   }, [response]);
 
@@ -107,7 +114,6 @@ const SiteMapper = () => {
 
   const skip = () => {
     setResponse((prevResponse) => {
-      //const lastColumn = prevResponse.map(({ column }) => column).sort((a, b) => b - a)[0] || 0;
       return [
         ...prevResponse,
         {
@@ -116,7 +122,7 @@ const SiteMapper = () => {
           container,
           rack,
           row,
-          column,
+          column: autoIncrement ? getLastColumn() : 0,
           port: "--",
           raw: "--",
           miner: "--"
@@ -127,7 +133,18 @@ const SiteMapper = () => {
 
   const exportToCsv = () => {
     const csv = generateCsv(csvConfig)(response as any);
-    ExportToCsv(addNewLine(asString(csv)))
+    ExportToCsv(addNewLine(asString(csv)));
+  };
+
+  const onChangeField = (fieldName: string, ip: string, value: string | number) => {
+    setResponse((responses) =>
+      responses.map((res) => {
+        if (res.ip === ip) {
+          return { ...res, [fieldName]: value };
+        }
+        return res;
+      })
+    );
   };
 
   return (
@@ -179,9 +196,9 @@ const SiteMapper = () => {
           </Field.Root>
 
           <Field.Root>
-            <Field.Label>Rack Index</Field.Label>
+            <Field.Label>Column</Field.Label>
             <Input
-              placeholder="Rack index"
+              placeholder="Column"
               value={column}
               disabled={autoIncrement}
               onChange={(e) => {
@@ -195,7 +212,7 @@ const SiteMapper = () => {
           </Button>
         </Flex>
 
-        {/* <Flex mb={5} justify="flex-end">
+        <Flex mb={5} justify="flex-end">
           <Switch.Root
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setAutoIncrement(e.target.checked);
@@ -205,49 +222,100 @@ const SiteMapper = () => {
             <Switch.Control>
               <Switch.Thumb />
             </Switch.Control>
-            <Switch.Label>Autoincrement Index</Switch.Label>
+            <Switch.Label>Autoincrement Column</Switch.Label>
           </Switch.Root>
-        </Flex> */}
-
-        <Table.Root size="sm">
-          <Table.Header>
-            <Table.Row>
-              <Table.ColumnHeader>Miner Type</Table.ColumnHeader>
-              <Table.ColumnHeader>Mac Address</Table.ColumnHeader>
-              <Table.ColumnHeader>IP Address</Table.ColumnHeader>
-              <Table.ColumnHeader>Container</Table.ColumnHeader>
-              <Table.ColumnHeader>Rack</Table.ColumnHeader>
-              <Table.ColumnHeader>Row</Table.ColumnHeader>
-              <Table.ColumnHeader>Column</Table.ColumnHeader>
-              <Table.ColumnHeader>Action</Table.ColumnHeader>
-              {/* <Table.ColumnHeader w={30}>Raw</Table.ColumnHeader> */}
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {response.map((item, idx) => (
-              <Table.Row key={item.id}>
-                <Table.Cell>{item.miner}</Table.Cell>
-                <Table.Cell>{item.mac}</Table.Cell>
-                <Table.Cell>{item.ip}</Table.Cell>
-                <Table.Cell>{item.container}</Table.Cell>
-                <Table.Cell>{item.rack}</Table.Cell>
-                <Table.Cell>{item.row}</Table.Cell>
-                <Table.Cell>{item.column}</Table.Cell>
-                <Table.Cell>
-                  <Button
-                    size="xs"
-                    onClick={() => {
-                      setResponse((prev) => prev.filter((_v, i) => i !== idx));
-                    }}
-                  >
-                    Remove
-                  </Button>
-                </Table.Cell>
-                {/* <Table.Cell w={30}>{item.raw}</Table.Cell> */}
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table.Root>
+        </Flex>
+        {response.length === 0 ? (
+          <EmptyState.Root>
+            <EmptyState.Content>
+              <EmptyState.Indicator>
+                <FiInbox />
+              </EmptyState.Indicator>
+              <VStack textAlign="center">
+                <EmptyState.Title>No miner data</EmptyState.Title>
+                <EmptyState.Description>Click "Start Listening" and press IP Report button</EmptyState.Description>
+              </VStack>
+            </EmptyState.Content>
+          </EmptyState.Root>
+        ) : (
+          <Table.ScrollArea borderWidth="1px" rounded="md" height="400px">
+            <Table.Root size="sm" stickyHeader>
+              <Table.Header>
+                <Table.Row>
+                  <Table.ColumnHeader>Miner Type</Table.ColumnHeader>
+                  <Table.ColumnHeader>Mac Address</Table.ColumnHeader>
+                  <Table.ColumnHeader>IP Address</Table.ColumnHeader>
+                  <Table.ColumnHeader w="70px">Container</Table.ColumnHeader>
+                  <Table.ColumnHeader w="70px">Rack</Table.ColumnHeader>
+                  <Table.ColumnHeader w="70px">Row</Table.ColumnHeader>
+                  <Table.ColumnHeader w="70px">Column</Table.ColumnHeader>
+                  <Table.ColumnHeader w="100px" textAlign="end">
+                    #
+                  </Table.ColumnHeader>
+                  {/* <Table.ColumnHeader w={30}>Raw</Table.ColumnHeader> */}
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {response.map((item, idx) => (
+                  <Table.Row key={item.id}>
+                    <Table.Cell>{item.miner}</Table.Cell>
+                    <Table.Cell>{item.mac}</Table.Cell>
+                    <Table.Cell>{item.ip}</Table.Cell>
+                    <Table.Cell>
+                      <Input
+                        onChange={(e) => {
+                          onChangeField("container", item.ip, e.target.value);
+                        }}
+                        value={item.container}
+                        w="70px"
+                      />
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Input
+                        onChange={(e) => {
+                          onChangeField("rack", item.ip, e.target.value);
+                        }}
+                        value={item.rack}
+                        w="70px"
+                      />
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Input
+                        onChange={(e) => {
+                          onChangeField("row", item.ip, parseInt(e.target.value));
+                        }}
+                        value={item.row}
+                        w="70px"
+                      />
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Input
+                        onChange={(e) => {
+                          onChangeField("column", item.ip, parseInt(e.target.value));
+                        }}
+                        value={item.column}
+                        w="70px"
+                      />
+                    </Table.Cell>
+                    <Table.Cell w="100px" textAlign="end">
+                      <IconButton
+                        size="xs"
+                        variant="subtle"
+                        color="red"
+                        onClick={() => {
+                          setResponse((prev) => prev.filter((_v, i) => i !== idx));
+                        }}
+                      >
+                        <FiTrash2 />
+                      </IconButton>
+                    </Table.Cell>
+                    {/* <Table.Cell w={30}>{item.raw}</Table.Cell> */}
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table.Root>
+          </Table.ScrollArea>
+        )}
       </Box>
 
       <Flex align="flex-end" spaceX={2}>
@@ -260,7 +328,9 @@ const SiteMapper = () => {
         <Button {...(listening ? buttonStyles.listening : buttonStyles.normal)} onClick={toggleListening}>
           {listening ? "Stop Listening" : "Start Listening"}
         </Button>
-        <Button onClick={exportToCsv}>Export to CSV</Button>
+        <Button onClick={exportToCsv} disabled={response.length === 0}>
+          Export to CSV
+        </Button>
       </Flex>
     </Flex>
   );
