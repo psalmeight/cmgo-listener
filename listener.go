@@ -23,7 +23,7 @@ type Listener struct {
 	app       *App
 }
 
-func NewListener(app *App) *Listener {
+func CreateListener(app *App) *Listener {
 	return &Listener{
 		listeners: make(map[int]*net.UDPConn),
 		app:       app,
@@ -45,10 +45,7 @@ func (app *App) ExportToCsv(data string) {
 }
 
 func DownloadCSV(ctx context.Context) {
-	// Define the path of your CSV file in the root folder
 	sourceFile := "container-miners.csv" // Ensure this file exists in your root directory
-
-	// Open the save file dialog
 	destPath, _ := runtime.SaveFileDialog(ctx, runtime.SaveDialogOptions{
 		Title:           "Save CSV File",
 		DefaultFilename: "container-miners.csv",
@@ -56,14 +53,11 @@ func DownloadCSV(ctx context.Context) {
 			{DisplayName: "CSV Files (*.csv)", Pattern: "*.csv"},
 		},
 	})
-
-	// Check if a destination was selected
 	if destPath == "" {
 		fmt.Println("No file path selected")
 		return
 	}
 
-	// Copy the file to the selected destination
 	err := copyFile(sourceFile, destPath)
 	if err != nil {
 		fmt.Println("Error copying file:", err)
@@ -74,33 +68,30 @@ func DownloadCSV(ctx context.Context) {
 }
 
 func copyFile(src, dest string) error {
-	// Open the source file
 	source, err := os.Open(src)
 	if err != nil {
 		return err
 	}
 	defer source.Close()
 
-	// Create the destination file
 	destination, err := os.Create(dest)
 	if err != nil {
 		return err
 	}
 	defer destination.Close()
 
-	// Copy contents
 	_, err = io.Copy(destination, source)
 	return err
 }
 
-func (app *App) InitializePorts(port []int) {
+func (app *App) ReadyListener() {
 	if listener == nil {
-		fmt.Println("Initiating new listener for port", port)
-		listener = NewListener(app)
+		fmt.Println("Opening a new listener")
+		listener = CreateListener(app)
 	}
 }
 
-func (app *App) StartListeningPorts(ports []int) {
+func (app *App) StartListeningToPorts(ports []int) {
 	for _, port := range ports {
 		listener.StartOrStopListening(port)
 	}

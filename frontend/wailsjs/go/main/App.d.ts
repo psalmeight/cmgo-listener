@@ -4,8 +4,8 @@ import {miners} from '../models';
 
 export function ExportToCsv(arg1:string):Promise<void>;
 
-export function InitializePorts(arg1:Array<number>):Promise<void>;
-
 export function Probe(arg1:string,arg2:string,arg3:string):Promise<miners.MinerInfo>;
 
-export function StartListeningPorts(arg1:Array<number>):Promise<void>;
+export function ReadyListener():Promise<void>;
+
+export function StartListeningToPorts(arg1:Array<number>):Promise<void>;

@@ -15,7 +15,7 @@ import {
   Text,
   VStack
 } from "@chakra-ui/react";
-import { ExportToCsv, InitializePorts, StartListeningPorts } from "../wailsjs/go/main/App";
+import { ExportToCsv, ReadyListener, StartListeningToPorts } from "../wailsjs/go/main/App";
 import { EventsOn, EventsOff } from "../wailsjs/runtime/runtime";
 import { miners } from "../wailsjs/go/models";
 import logo from "./assets/images/logo.svg";
@@ -61,12 +61,10 @@ const SiteMapper = () => {
   const [autoIncrement, setAutoIncrement] = useState<boolean>(false);
 
   useEffect(() => {
-    InitializePorts(ports.map(({ port }) => port));
-
+    ReadyListener();
     EventsOn("responseEvent", (minerInfo: miners.MinerInfo) => {
       processMinerInfo(minerInfo);
     });
-
     return () => {
       EventsOff("responseEvent");
     };
@@ -109,7 +107,7 @@ const SiteMapper = () => {
 
   const toggleListening = () => {
     setListening((prev) => !prev);
-    StartListeningPorts(ports.map(({ port }) => port));
+    StartListeningToPorts(ports.map(({ port }) => port));
   };
 
   const skip = () => {

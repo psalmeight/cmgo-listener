@@ -6,14 +6,14 @@ export function ExportToCsv(arg1) {
   return window['go']['main']['App']['ExportToCsv'](arg1);
 }
 
-export function InitializePorts(arg1) {
-  return window['go']['main']['App']['InitializePorts'](arg1);
-}
-
 export function Probe(arg1, arg2, arg3) {
   return window['go']['main']['App']['Probe'](arg1, arg2, arg3);
 }
 
-export function StartListeningPorts(arg1) {
-  return window['go']['main']['App']['StartListeningPorts'](arg1);
+export function ReadyListener() {
+  return window['go']['main']['App']['ReadyListener']();
+}
+
+export function StartListeningToPorts(arg1) {
+  return window['go']['main']['App']['StartListeningToPorts'](arg1);
 }
