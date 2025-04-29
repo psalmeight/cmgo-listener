@@ -134,7 +134,9 @@ const SiteMapper = () => {
   };
 
   const exportToCsv = () => {
-    const csv = generateCsv(csvConfig)(response as any);
+    const csv = generateCsv(csvConfig)(
+      response.map((res) => ({ ...res, ip: res.ip.startsWith("ip:") ? "--" : res.ip })) as any
+    );
     ExportToCsv(addNewLine(asString(csv)));
   };
 
