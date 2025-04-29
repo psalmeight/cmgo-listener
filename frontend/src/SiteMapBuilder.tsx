@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -20,7 +20,7 @@ import { EventsOn, EventsOff } from "../wailsjs/runtime/runtime";
 import { miners } from "../wailsjs/go/models";
 import logo from "./assets/images/logo.svg";
 import FadingText from "./FadingText";
-import { FiTrash2, FiInbox } from "react-icons/fi";
+import { FiTrash2, FiInbox, FiWifi } from "react-icons/fi";
 
 import { mkConfig, generateCsv, asString } from "export-to-csv";
 const csvConfig = mkConfig({ useKeysAsHeaders: true });
@@ -60,6 +60,29 @@ const SiteMapper = () => {
   const [response, setResponse] = useState<RowInfo[]>([]);
   const [autoIncrement, setAutoIncrement] = useState<boolean>(false);
 
+  const processMinerInfo = useCallback(
+    (minerInfo: miners.MinerInfo) => {
+      setResponse((prevResponse) => {
+        const { mac, ip, port, raw, minerType } = minerInfo;
+        return [
+          ...prevResponse,
+          {
+            mac,
+            ip,
+            container,
+            rack,
+            row,
+            column: autoIncrement ? getLastColumn() : 0,
+            port,
+            raw,
+            miner: minerType
+          } as RowInfo
+        ];
+      });
+    },
+    [container, rack, row, column, autoIncrement]
+  );
+
   useEffect(() => {
     ReadyListener();
     EventsOn("responseEvent", (minerInfo: miners.MinerInfo) => {
@@ -68,27 +91,7 @@ const SiteMapper = () => {
     return () => {
       EventsOff("responseEvent");
     };
-  }, [ports, autoIncrement]);
-
-  const processMinerInfo = (minerInfo: miners.MinerInfo) => {
-    setResponse((prevResponse) => {
-      const { mac, ip, port, raw, minerType } = minerInfo;
-      return [
-        ...prevResponse,
-        {
-          mac,
-          ip,
-          container,
-          rack,
-          row,
-          column: autoIncrement ? getLastColumn() : 0,
-          port,
-          raw,
-          miner: minerType
-        } as RowInfo
-      ];
-    });
-  };
+  }, [processMinerInfo]);
 
   const getLastColumn = (): number => {
     if (response.length === 0) {
@@ -223,7 +226,7 @@ const SiteMapper = () => {
             <Switch.Label>Autoincrement Column</Switch.Label>
           </Switch.Root>
         </Flex>
-        {response.length === 0 ? (
+        {response.length === 0 && !listening ? (
           <EmptyState.Root>
             <EmptyState.Content>
               <EmptyState.Indicator>
@@ -232,6 +235,20 @@ const SiteMapper = () => {
               <VStack textAlign="center">
                 <EmptyState.Title>No miner data</EmptyState.Title>
                 <EmptyState.Description>Click "Start Listening" and press IP Report button</EmptyState.Description>
+              </VStack>
+            </EmptyState.Content>
+          </EmptyState.Root>
+        ) : listening && response.length === 0 ? (
+          <EmptyState.Root>
+            <EmptyState.Content>
+              <EmptyState.Indicator>
+                <FadingText>
+                  <FiWifi />
+                </FadingText>
+              </EmptyState.Indicator>
+              <VStack textAlign="center">
+                <EmptyState.Title>Waiting for IP Report signal</EmptyState.Title>
+                <EmptyState.Description>Press the IP report button on the miner or hit Skip</EmptyState.Description>
               </VStack>
             </EmptyState.Content>
           </EmptyState.Root>

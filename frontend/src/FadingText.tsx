@@ -1,9 +1,10 @@
 import { Box } from "@chakra-ui/react";
 import { motion } from "framer-motion";
+import { ReactNode } from "react";
 
 const MotionBox = motion(Box);
 
-const FadingText = () => {
+const FadingText = ({ children }: { children?: ReactNode }) => {
   return (
     <MotionBox
       initial={{ opacity: 0 }}
@@ -13,9 +14,9 @@ const FadingText = () => {
         repeat: Infinity // Keeps fading indefinitely
       }}
       textAlign="center"
-      color='green'
+      color="green"
     >
-      Listening
+      {children || "Listening"}
     </MotionBox>
   );
 };
