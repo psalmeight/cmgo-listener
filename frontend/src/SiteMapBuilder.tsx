@@ -21,6 +21,7 @@ import { miners } from "../wailsjs/go/models";
 import logo from "./assets/images/logo.svg";
 import FadingText from "./FadingText";
 import { FiTrash2, FiInbox, FiWifi } from "react-icons/fi";
+import { v4 as uuid } from "uuid";
 
 import { mkConfig, generateCsv, asString } from "export-to-csv";
 const csvConfig = mkConfig({ useKeysAsHeaders: true });
@@ -119,7 +120,7 @@ const SiteMapper = () => {
         ...prevResponse,
         {
           mac: "--",
-          ip: "--",
+          ip: `ip:${uuid()}`,
           container,
           rack,
           row,
@@ -275,7 +276,7 @@ const SiteMapper = () => {
                   <Table.Row key={item.id}>
                     <Table.Cell>{item.miner}</Table.Cell>
                     <Table.Cell>{item.mac}</Table.Cell>
-                    <Table.Cell>{item.ip}</Table.Cell>
+                    <Table.Cell>{item.ip.startsWith("ip:") ? "--" : item.ip}</Table.Cell>
                     <Table.Cell>
                       <Input
                         onChange={(e) => {
@@ -297,7 +298,7 @@ const SiteMapper = () => {
                     <Table.Cell>
                       <Input
                         onChange={(e) => {
-                          onChangeField("row", item.ip, parseInt(e.target.value));
+                          onChangeField("row", item.ip, e.target.value);
                         }}
                         value={item.row}
                         w="70px"
@@ -306,7 +307,7 @@ const SiteMapper = () => {
                     <Table.Cell>
                       <Input
                         onChange={(e) => {
-                          onChangeField("column", item.ip, parseInt(e.target.value));
+                          onChangeField("column", item.ip, e.target.value);
                         }}
                         value={item.column}
                         w="70px"
