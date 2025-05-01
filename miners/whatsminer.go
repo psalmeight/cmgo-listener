@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func TryWhatsminer(ctx context.Context, ip string, port int) (MinerInfo, error) {
+func TryWhatsminer(ctx context.Context, ip string, port int, mac string) (MinerInfo, error) {
 	var minerInfo MinerInfo
 
 	model, err := GetMinerModel(ip)
@@ -21,8 +21,8 @@ func TryWhatsminer(ctx context.Context, ip string, port int) (MinerInfo, error) 
 	}
 
 	minerInfo.MinerType = fmt.Sprintf("%s %s", miner.Msg.Hostname, model)
-	minerInfo.Ip = miner.Msg.IP
-	minerInfo.Mac = miner.Msg.Mac
+	minerInfo.Ip = ip
+	minerInfo.Mac = mac
 	minerInfo.Port = fmt.Sprintf("%d", port)
 
 	return minerInfo, nil

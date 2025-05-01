@@ -3,7 +3,6 @@ package main
 import (
 	"cmgo-listener/miners"
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net"
@@ -29,6 +28,12 @@ func CreateListener(app *App) *Listener {
 		app:       app,
 	}
 }
+
+const (
+	AntMinerPort   = 14235
+	WhatsMinerPort = 8888
+	GoldshellPort  = 1314
+)
 
 // Listener {
 // 	app
@@ -136,34 +141,29 @@ func (lm *Listener) listen(conn *net.UDPConn, port int) {
 			return
 		}
 		msg := string(buffer[:n])
-		lm.app.Probe("", strconv.Itoa(port), msg)
+		lm.app.Probe(strconv.Itoa(port), msg)
 	}
 }
 
-func (app *App) Probe(ip string, port string, message string) miners.MinerInfo {
+func (app *App) Probe(port string, message string) miners.MinerInfo {
 
 	var minerInfo miners.MinerInfo
 	var err error
-	var goldShellResponse miners.GoldShellIPReportResponse
-
-	ipMac := make([]string, 2)
 	intPort, _ := strconv.Atoi(port)
 
-	if intPort == 14235 {
-		ipMac = strings.Split(message, ",")
+	if intPort == AntMinerPort {
+		var ipMac []string = strings.Split(message, ",")
 		if len(ipMac) > 0 {
-			minerInfo, err = miners.TryAntminer(app.ctx, ipMac[0], intPort)
+			minerInfo, err = miners.TryAntminer(app.ctx, ipMac[0], intPort, ipMac[1])
 		}
-	} else if intPort == 8888 {
-		ipMac = strings.Split(message[3:], "MAC:")
-
+	} else if intPort == WhatsMinerPort {
+		var ipMac []string = strings.Split(message[3:], "MAC:")
 		if len(ipMac) > 0 {
-			minerInfo, err = miners.TryWhatsminer(app.ctx, ipMac[0], intPort)
+			minerInfo, err = miners.TryWhatsminer(app.ctx, ipMac[0], intPort, ipMac[1])
 		}
-	} else {
-		_ = json.Unmarshal([]byte(message), &goldShellResponse)
-		ipMac[0] = goldShellResponse.IP
-		ipMac[1] = goldShellResponse.Mac
+	} else if intPort == GoldshellPort {
+		intPort, _ := strconv.Atoi(port)
+		minerInfo, err = miners.TryGoldshell(app.ctx, "", intPort, "", message)
 	}
 
 	if err != nil {

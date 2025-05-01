@@ -27,9 +27,10 @@ type AntminerResponse struct {
 	Port                    int    `json:"port"`
 }
 
-func TryAntminer(ctx context.Context, ip string, port int) (MinerInfo, error) {
+func TryAntminer(ctx context.Context, ip string, port int, mac string) (MinerInfo, error) {
 	var response AntminerResponse
 	var minerInfo MinerInfo
+	var err error
 
 	url := fmt.Sprintf("http://%s/cgi-bin/get_system_info.cgi", ip)
 	username := "root"
@@ -44,12 +45,10 @@ func TryAntminer(ctx context.Context, ip string, port int) (MinerInfo, error) {
 
 	if err != nil {
 		fmt.Printf("Error while making request: %v\n", err)
-		return minerInfo, err
 	}
 
 	if resp.StatusCode() != http.StatusOK {
 		fmt.Printf("Unexpected status code: %d, Response: %s\n", resp.StatusCode(), string(resp.Body()))
-		return minerInfo, err
 	}
 
 	body := resp.Body()
@@ -57,13 +56,12 @@ func TryAntminer(ctx context.Context, ip string, port int) (MinerInfo, error) {
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		fmt.Printf("Error parsing JSON: %v\n", err)
-		return minerInfo, err
 	}
 
 	minerInfo.MinerType = response.Minertype
-	minerInfo.Ip = response.Ipaddress
-	minerInfo.Mac = response.Macaddr
+	minerInfo.Ip = ip
+	minerInfo.Mac = mac
 	minerInfo.Port = fmt.Sprintf("%d", port)
 
-	return minerInfo, nil
+	return minerInfo, err
 }
