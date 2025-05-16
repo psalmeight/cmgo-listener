@@ -6,8 +6,8 @@ export function ExportToCsv(arg1) {
   return window['go']['main']['App']['ExportToCsv'](arg1);
 }
 
-export function Probe(arg1, arg2, arg3) {
-  return window['go']['main']['App']['Probe'](arg1, arg2, arg3);
+export function Probe(arg1, arg2) {
+  return window['go']['main']['App']['Probe'](arg1, arg2);
 }
 
 export function ReadyListener() {

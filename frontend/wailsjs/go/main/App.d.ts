@@ -4,7 +4,7 @@ import {miners} from '../models';
 
 export function ExportToCsv(arg1:string):Promise<void>;
 
-export function Probe(arg1:string,arg2:string,arg3:string):Promise<miners.MinerInfo>;
+export function Probe(arg1:string,arg2:string):Promise<miners.MinerInfo>;
 
 export function ReadyListener():Promise<void>;
 
