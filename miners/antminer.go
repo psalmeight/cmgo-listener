@@ -1,67 +1,42 @@
 package miners
 
 import (
+	"cmgo-listener/commands"
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
-	"time"
 
-	"github.com/go-resty/resty/v2"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
 
-type AntminerResponse struct {
-	Minertype               string `json:"minertype"`
-	Nettype                 string `json:"nettype"`
-	Netdevice               string `json:"netdevice"`
-	Macaddr                 string `json:"macaddr"`
-	Hostname                string `json:"hostname"`
-	Ipaddress               string `json:"ipaddress"`
-	Netmask                 string `json:"netmask"`
-	Gateway                 string `json:"gateway"`
-	Dnsservers              string `json:"dnsservers"`
-	SystemMode              string `json:"system_mode"`
-	SystemKernelVersion     string `json:"system_kernel_version"`
-	SystemFilesystemVersion string `json:"system_filesystem_version"`
-	FirmwareType            string `json:"firmware_type"`
-	Port                    int    `json:"port"`
-}
+func TryAntminer(ctx context.Context, ip string, port int, mac string) (commands.MinerInfo, error) {
+	var response commands.SystemInfoResponse
+	var minerInfo commands.MinerInfo
 
-func TryAntminer(ctx context.Context, ip string, port int, mac string) (MinerInfo, error) {
-	var response AntminerResponse
-	var minerInfo MinerInfo
-	var err error
-
-	url := fmt.Sprintf("http://%s/cgi-bin/get_system_info.cgi", ip)
-	username := "root"
-	password := "root"
-
-	client := resty.New()
-	client.SetTimeout(10 * time.Second)
-
-	resp, err := client.R().
-		SetDigestAuth(username, password).
-		Get(url)
+	fmt.Println("Fetching antminer system info for IP:", ip)
+	response, err := commands.GetSystemInfo(ip)
 
 	if err != nil {
-		fmt.Printf("Error while making request: %v\n", err)
+		return minerInfo, err
 	}
 
-	if resp.StatusCode() != http.StatusOK {
-		fmt.Printf("Unexpected status code: %d, Response: %s\n", resp.StatusCode(), string(resp.Body()))
-	}
+	fmt.Println("Fetching antminer summary for IP:", ip)
+	summary, err := commands.GetSummary(ip)
 
-	body := resp.Body()
-
-	err = json.Unmarshal(body, &response)
 	if err != nil {
-		fmt.Printf("Error parsing JSON: %v\n", err)
+		return minerInfo, err
 	}
+
+	printer := message.NewPrinter(language.AmericanEnglish)
+	hashrate := printer.Sprintf("%.2f", summary.SUMMARY[0].MHS5S/1000)
 
 	minerInfo.MinerType = response.Minertype
 	minerInfo.Ip = ip
 	minerInfo.Mac = mac
 	minerInfo.Port = fmt.Sprintf("%d", port)
+	minerInfo.Hashrate = hashrate
+	minerInfo.HashrateUnit = "GH/s"
+	minerInfo.FirmwareVersion = response.SystemFilesystemVersion
 
 	return minerInfo, err
 }

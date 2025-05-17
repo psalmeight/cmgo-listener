@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmgo-listener/commands"
 	"cmgo-listener/miners"
 	"context"
 	"fmt"
@@ -145,9 +146,9 @@ func (lm *Listener) listen(conn *net.UDPConn, port int) {
 	}
 }
 
-func (app *App) Probe(port string, message string) miners.MinerInfo {
+func (app *App) Probe(port string, message string) commands.MinerInfo {
 
-	var minerInfo miners.MinerInfo
+	var minerInfo commands.MinerInfo
 	var err error
 	intPort, _ := strconv.Atoi(port)
 

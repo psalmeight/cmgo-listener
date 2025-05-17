@@ -10,6 +10,7 @@ import {
   Image,
   Input,
   Separator,
+  Stack,
   Switch,
   Table,
   Text,
@@ -17,7 +18,7 @@ import {
 } from "@chakra-ui/react";
 import { ExportToCsv, ReadyListener, StartListeningToPorts } from "../wailsjs/go/main/App";
 import { EventsOn, EventsOff } from "../wailsjs/runtime/runtime";
-import { miners } from "../wailsjs/go/models";
+import { commands } from "../wailsjs/go/models";
 import logo from "./assets/images/logo.svg";
 import FadingText from "./FadingText";
 import { FiTrash2, FiInbox, FiWifi } from "react-icons/fi";
@@ -50,6 +51,9 @@ interface RowInfo {
   column: number;
   raw: string;
   miner: string;
+  hr5s: string;
+  unit: string;
+  fwversion: string;
 }
 
 const SiteMapper = () => {
@@ -62,7 +66,7 @@ const SiteMapper = () => {
   const [autoIncrement, setAutoIncrement] = useState<boolean>(false);
 
   const processMinerInfo = useCallback(
-    (minerInfo: miners.MinerInfo) => {
+    (minerInfo: commands.MinerInfo) => {
       setResponse((prevResponse) => {
         const { mac, ip, port, raw, minerType } = minerInfo;
         return [
@@ -76,7 +80,10 @@ const SiteMapper = () => {
             column: autoIncrement ? getLastColumn() : 0,
             port,
             raw,
-            miner: minerType
+            miner: minerType,
+            hr5s: minerInfo.hashrate,
+            unit: minerInfo.hashrateUnit,
+            fwversion: minerInfo.firmwareVersion,
           } as RowInfo
         ];
       });
@@ -86,7 +93,7 @@ const SiteMapper = () => {
 
   useEffect(() => {
     ReadyListener();
-    EventsOn("responseEvent", (minerInfo: miners.MinerInfo) => {
+    EventsOn("responseEvent", (minerInfo: commands.MinerInfo) => {
       processMinerInfo(minerInfo);
     });
     return () => {
@@ -158,7 +165,7 @@ const SiteMapper = () => {
         <Heading as="h1" mb={5}>
           <Flex justify="space-between">
             <Flex spaceX={2} align="center">
-              <Image src={logo} h={50} /> <Separator orientation="vertical" height="10" /> <Text>SiteMap Builder</Text>
+              <Image src={logo} h={50} /> <Separator orientation="vertical" height="10" /> <Text>IP Reporter</Text>
             </Flex>
             {listening && <FadingText />}
           </Flex>
@@ -257,7 +264,7 @@ const SiteMapper = () => {
           </EmptyState.Root>
         ) : (
           <Table.ScrollArea borderWidth="1px" rounded="md" height="400px">
-            <Table.Root size="sm" stickyHeader>
+            <Table.Root size="sm" stickyHeader striped showColumnBorder>
               <Table.Header>
                 <Table.Row>
                   <Table.ColumnHeader>Miner Type</Table.ColumnHeader>
@@ -276,7 +283,13 @@ const SiteMapper = () => {
               <Table.Body>
                 {response.map((item, idx) => (
                   <Table.Row key={item.id}>
-                    <Table.Cell>{item.miner}</Table.Cell>
+                    <Table.Cell>
+                      <Stack spaceY={0}>
+                        <Text><b>Miner:</b> {item.miner}</Text>
+                        <Text><b>HS5S:</b> {item.hr5s} {item.unit}</Text>
+                        <Text><b>FW Version:</b> {item.fwversion}</Text>
+                      </Stack>
+                    </Table.Cell>
                     <Table.Cell>{item.mac}</Table.Cell>
                     <Table.Cell>{item.ip.startsWith("ip:") ? "--" : item.ip}</Table.Cell>
                     <Table.Cell>
