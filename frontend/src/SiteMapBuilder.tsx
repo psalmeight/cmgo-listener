@@ -18,9 +18,13 @@ import {
   Switch,
   Table,
   Text,
-  VStack
+  VStack,
 } from "@chakra-ui/react";
-import { ExportToCsv, ReadyListener, StartListeningToPorts } from "../wailsjs/go/main/App";
+import {
+  ExportToCsv,
+  ReadyListener,
+  StartListeningToPorts,
+} from "../wailsjs/go/main/App";
 import { EventsOn, EventsOff } from "../wailsjs/runtime/runtime";
 import { commands } from "../wailsjs/go/models";
 import logo from "./assets/images/logo.svg";
@@ -33,7 +37,7 @@ const csvConfig = mkConfig({ useKeysAsHeaders: true });
 const addNewLine = (s: string): string => s + "\n";
 const buttonStyles = {
   listening: { bg: "pink", color: "white" },
-  normal: { bg: "black", color: "white" }
+  normal: { bg: "black", color: "white" },
 };
 
 const ports = [
@@ -41,7 +45,7 @@ const ports = [
   { port: 8888, firmware: "Whatsminer", disabled: true },
   { port: 1314, firmware: "Goldshells", disabled: true },
   { port: 0, firmware: "Canaan", disabled: true },
-  { port: 0, firmware: "Avalon", disabled: true }
+  { port: 0, firmware: "Avalon", disabled: true },
 ];
 
 interface RowInfo {
@@ -87,8 +91,8 @@ const SiteMapper = () => {
             miner: minerType,
             hr5s: minerInfo.hashrate,
             unit: minerInfo.hashrateUnit,
-            fwversion: minerInfo.firmwareVersion
-          } as RowInfo
+            fwversion: minerInfo.firmwareVersion,
+          } as RowInfo,
         ];
       });
     },
@@ -138,8 +142,11 @@ const SiteMapper = () => {
           column: autoIncrement ? getLastColumn() : 0,
           port: "--",
           raw: "--",
-          miner: "--"
-        } as RowInfo
+          miner: "--",
+          hr5s: "--",
+          unit: "--",
+          fwversion: "--",
+        } as RowInfo,
       ];
     });
   };
@@ -150,20 +157,27 @@ const SiteMapper = () => {
         mac,
         container: container + rack,
         row,
-        column
+        column,
       }))
     );
     ExportToCsv(addNewLine(asString(csv)), "container-miners");
   };
 
-    const exportData = () => {
+  const exportData = () => {
     const csv = generateCsv(csvConfig)(
-      response.map((res) => ({ ...res, ip: res.ip.startsWith("ip:") ? "--" : res.ip })) as any
+      response.map((res) => ({
+        ...res,
+        ip: res.ip.startsWith("ip:") ? "--" : res.ip,
+      })) as any
     );
     ExportToCsv(addNewLine(asString(csv)), "container-data");
   };
 
-  const onChangeField = (fieldName: string, ip: string, value: string | number) => {
+  const onChangeField = (
+    fieldName: string,
+    ip: string,
+    value: string | number
+  ) => {
     setResponse((responses) =>
       responses.map((res) => {
         if (res.ip === ip) {
@@ -181,7 +195,9 @@ const SiteMapper = () => {
         <Heading as="h1" mb={5}>
           <Flex justify="space-between">
             <Flex spaceX={2} align="center">
-              <Image src={logo} h={50} /> <Separator orientation="vertical" height="10" /> <Text>IP Reporter</Text>
+              <Image src={logo} h={50} />{" "}
+              <Separator orientation="vertical" height="10" />{" "}
+              <Text>IP Reporter</Text>
             </Flex>
             {listening && <FadingText />}
           </Flex>
@@ -269,7 +285,9 @@ const SiteMapper = () => {
               </EmptyState.Indicator>
               <VStack textAlign="center">
                 <EmptyState.Title>No miner data</EmptyState.Title>
-                <EmptyState.Description>Click "Start Listening" and press IP Report button</EmptyState.Description>
+                <EmptyState.Description>
+                  Click "Start Listening" and press IP Report button
+                </EmptyState.Description>
               </VStack>
             </EmptyState.Content>
           </EmptyState.Root>
@@ -282,8 +300,12 @@ const SiteMapper = () => {
                 </FadingText>
               </EmptyState.Indicator>
               <VStack textAlign="center">
-                <EmptyState.Title>Waiting for IP Report signal</EmptyState.Title>
-                <EmptyState.Description>Press the IP report button on the miner or hit Skip</EmptyState.Description>
+                <EmptyState.Title>
+                  Waiting for IP Report signal
+                </EmptyState.Title>
+                <EmptyState.Description>
+                  Press the IP report button on the miner or hit Skip
+                </EmptyState.Description>
               </VStack>
             </EmptyState.Content>
           </EmptyState.Root>
@@ -322,7 +344,9 @@ const SiteMapper = () => {
                       </Stack>
                     </Table.Cell>
                     <Table.Cell>{item.mac}</Table.Cell>
-                    <Table.Cell>{item.ip.startsWith("ip:") ? "--" : item.ip}</Table.Cell>
+                    <Table.Cell>
+                      {item.ip.startsWith("ip:") ? "--" : item.ip}
+                    </Table.Cell>
                     <Table.Cell>
                       <Input
                         onChange={(e) => {
@@ -365,7 +389,9 @@ const SiteMapper = () => {
                         variant="subtle"
                         color="red"
                         onClick={() => {
-                          setResponse((prev) => prev.filter((_v, i) => i !== idx));
+                          setResponse((prev) =>
+                            prev.filter((_v, i) => i !== idx)
+                          );
                         }}
                       >
                         <FiTrash2 />
@@ -384,10 +410,17 @@ const SiteMapper = () => {
         {ports.map(({ firmware, port, disabled }, idx) => (
           <Field.Root key={idx}>
             <Field.Label>{firmware}</Field.Label>
-            <Input placeholder={`${firmware} port`} value={port} disabled={disabled} />
+            <Input
+              placeholder={`${firmware} port`}
+              value={port}
+              disabled={disabled}
+            />
           </Field.Root>
         ))}
-        <Button {...(listening ? buttonStyles.listening : buttonStyles.normal)} onClick={toggleListening}>
+        <Button
+          {...(listening ? buttonStyles.listening : buttonStyles.normal)}
+          onClick={toggleListening}
+        >
           {listening ? "Stop Listening" : "Start Listening"}
         </Button>
 

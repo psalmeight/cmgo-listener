@@ -47,14 +47,14 @@ func (app *App) ExportToCsv(data string, filename string) {
 		fmt.Println(err)
 	}
 
-	DownloadCSV(app.ctx)
+	DownloadCSV(app.ctx, filename)
 }
 
-func DownloadCSV(ctx context.Context) {
-	sourceFile := "container-miners.csv" // Ensure this file exists in your root directory
+func DownloadCSV(ctx context.Context, filename string) {
+	sourceFile := filename + ".csv" // Ensure this file exists in your root directory
 	destPath, _ := runtime.SaveFileDialog(ctx, runtime.SaveDialogOptions{
 		Title:           "Save CSV File",
-		DefaultFilename: "container-miners.csv",
+		DefaultFilename: filename + ".csv",
 		Filters: []runtime.FileFilter{
 			{DisplayName: "CSV Files (*.csv)", Pattern: "*.csv"},
 		},
