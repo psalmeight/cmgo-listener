@@ -28,14 +28,14 @@ func TryAntminer(ctx context.Context, ip string, port int, mac string) (commands
 	}
 
 	printer := message.NewPrinter(language.AmericanEnglish)
-	hashrate := printer.Sprintf("%.2f", summary.SUMMARY[0].MHS5S/1000)
+	hashrate := printer.Sprintf("%.2f", summary.SUMMARY[0].MHS5S/1000000)
 
 	minerInfo.MinerType = response.Minertype
 	minerInfo.Ip = ip
 	minerInfo.Mac = mac
 	minerInfo.Port = fmt.Sprintf("%d", port)
 	minerInfo.Hashrate = hashrate
-	minerInfo.HashrateUnit = "GH/s"
+	minerInfo.HashrateUnit = "TH/s"
 	minerInfo.FirmwareVersion = response.SystemFilesystemVersion
 
 	return minerInfo, err

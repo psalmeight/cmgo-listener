@@ -41,8 +41,8 @@ const (
 // 	listeners: [{ 1234: connection, 2345: connection, 4556: connection }]
 // }
 
-func (app *App) ExportToCsv(data string) {
-	err := os.WriteFile("container-miners.csv", []byte(data), 0644)
+func (app *App) ExportToCsv(data string, filename string) {
+	err := os.WriteFile(filename+".csv", []byte(data), 0644)
 	if err != nil {
 		fmt.Println(err)
 	}

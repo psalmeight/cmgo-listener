@@ -39,14 +39,14 @@ func TryWhatsminer(ctx context.Context, ip string, port int, mac string) (comman
 	}
 
 	printer := message.NewPrinter(language.AmericanEnglish)
-	hashrate := printer.Sprintf("%.2f", summary.SUMMARY[0].MHS5S/1000)
+	hashrate := printer.Sprintf("%.2f", summary.SUMMARY[0].MHS5S/1000000)
 
 	minerInfo.MinerType = fmt.Sprintf("%s %s", miner.Msg.Hostname, model)
 	minerInfo.Ip = ip
 	minerInfo.Mac = mac
 	minerInfo.Port = fmt.Sprintf("%d", port)
 	minerInfo.Hashrate = hashrate
-	minerInfo.HashrateUnit = "GH/s"
+	minerInfo.HashrateUnit = "TH/s"
 	minerInfo.FirmwareVersion = status.Msg.FirmwareVersion
 
 	return minerInfo, nil

@@ -1,0 +1,7 @@
+﻿"mac","ip","container","rack","row","column","port","raw","miner","hr5s","unit","fwversion"
+"28:E2:97:1E:CF:EF","172.16.10.41","C1","R1",0,0,"1314","","Goldshell-HS5","","",""
+"3C:A3:08:73:8C:6D
+","10.5.2.23","C1","R1",0,0,"14235","","Antminer S19 XP","0.00","TH/s","Tue Nov 29 11:43:22 CST 2022"
+"3C:A3:08:73:8C:6D
+","10.10.1.11","C1","R1",0,0,"8888","","WhatsMiner M30S+VG50","128.64","TH/s","20230508.18.Rel"
+

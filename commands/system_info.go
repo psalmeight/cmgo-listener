@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"net"
 )
 
@@ -29,6 +30,7 @@ func GetSystemInfo(ip string) (SystemInfoResponse, error) {
 		User: "root",
 		Pass: "root",
 	})
+	fmt.Println(response)
 
 	if err != nil {
 		return response, err

@@ -9,6 +9,10 @@ import {
   IconButton,
   Image,
   Input,
+  Menu,
+  Popover,
+  Portal,
+  SegmentGroup,
   Separator,
   Stack,
   Switch,
@@ -83,7 +87,7 @@ const SiteMapper = () => {
             miner: minerType,
             hr5s: minerInfo.hashrate,
             unit: minerInfo.hashrateUnit,
-            fwversion: minerInfo.firmwareVersion,
+            fwversion: minerInfo.firmwareVersion
           } as RowInfo
         ];
       });
@@ -140,11 +144,23 @@ const SiteMapper = () => {
     });
   };
 
-  const exportToCsv = () => {
+  const exportLayout = () => {
+    const csv = generateCsv(csvConfig)(
+      response.map(({ mac, container, rack, row, column }) => ({
+        mac,
+        container: container + rack,
+        row,
+        column
+      }))
+    );
+    ExportToCsv(addNewLine(asString(csv)), "container-miners");
+  };
+
+    const exportData = () => {
     const csv = generateCsv(csvConfig)(
       response.map((res) => ({ ...res, ip: res.ip.startsWith("ip:") ? "--" : res.ip })) as any
     );
-    ExportToCsv(addNewLine(asString(csv)));
+    ExportToCsv(addNewLine(asString(csv)), "container-data");
   };
 
   const onChangeField = (fieldName: string, ip: string, value: string | number) => {
@@ -223,7 +239,16 @@ const SiteMapper = () => {
           </Button>
         </Flex>
 
-        <Flex mb={5} justify="flex-end">
+        <Flex mb={5} justify="flex-end" gap={4}>
+          <Button
+            size="sm"
+            variant="subtle"
+            onClick={() => {
+              setResponse([]);
+            }}
+          >
+            Clear Table
+          </Button>
           <Switch.Root
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               setAutoIncrement(e.target.checked);
@@ -285,9 +310,15 @@ const SiteMapper = () => {
                   <Table.Row key={item.id}>
                     <Table.Cell>
                       <Stack spaceY={0}>
-                        <Text><b>Miner:</b> {item.miner}</Text>
-                        <Text><b>HS5S:</b> {item.hr5s} {item.unit}</Text>
-                        <Text><b>FW Version:</b> {item.fwversion}</Text>
+                        <Text>
+                          <b>Miner:</b> {item.miner}
+                        </Text>
+                        <Text>
+                          <b>HS5S:</b> {item.hr5s} {item.unit}
+                        </Text>
+                        <Text>
+                          <b>FW Version:</b> {item.fwversion}
+                        </Text>
                       </Stack>
                     </Table.Cell>
                     <Table.Cell>{item.mac}</Table.Cell>
@@ -359,9 +390,25 @@ const SiteMapper = () => {
         <Button {...(listening ? buttonStyles.listening : buttonStyles.normal)} onClick={toggleListening}>
           {listening ? "Stop Listening" : "Start Listening"}
         </Button>
-        <Button onClick={exportToCsv} disabled={response.length === 0}>
-          Export to CSV
-        </Button>
+
+        <Popover.Root>
+          <Popover.Trigger>
+            <Button disabled={response.length === 0}>Export</Button>
+          </Popover.Trigger>
+          <Portal>
+            <Popover.Positioner>
+              <Popover.Content>
+                <Popover.Arrow />
+                <Popover.Body>
+                  <Stack>
+                    <Button onClick={exportLayout}>Export Layout</Button>
+                    <Button onClick={exportData}>Export Data</Button>
+                  </Stack>
+                </Popover.Body>
+              </Popover.Content>
+            </Popover.Positioner>
+          </Portal>
+        </Popover.Root>
       </Flex>
     </Flex>
   );
