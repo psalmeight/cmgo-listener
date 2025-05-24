@@ -1,6 +1,7 @@
-package commands
+package whatsminers
 
 import (
+	"cmgo-listener/commands"
 	"net"
 )
 
@@ -22,7 +23,7 @@ type Status struct {
 func GetStatus(ip string) (Status, error) {
 	var response Status
 
-	err := DialCommand("status", &response, &Profile{
+	err := commands.DialCommand("status", &response, &commands.Profile{
 		IP:   net.IPAddr{IP: net.ParseIP(ip)},
 		User: "admin",
 		Pass: "admin",

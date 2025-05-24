@@ -1,6 +1,7 @@
-package commands
+package whatsminers
 
 import (
+	"cmgo-listener/commands"
 	"net"
 )
 
@@ -23,7 +24,7 @@ type DevDetailsResponse struct {
 func GetDevDetails(ip string) (DevDetailsResponse, error) {
 	var response DevDetailsResponse
 
-	err := DialCommand("devdetails", &response, &Profile{
+	err := commands.DialCommand("devdetails", &response, &commands.Profile{
 		IP:   net.IPAddr{IP: net.ParseIP(ip)},
 		User: "admin",
 		Pass: "admin",

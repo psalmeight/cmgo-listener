@@ -2,6 +2,7 @@ package miners
 
 import (
 	"cmgo-listener/commands"
+	"cmgo-listener/commands/antminers"
 	"context"
 	"fmt"
 
@@ -10,25 +11,25 @@ import (
 )
 
 func TryAntminer(ctx context.Context, ip string, port int, mac string) (commands.MinerInfo, error) {
-	var response commands.SystemInfoResponse
+	var response antminers.SystemInfoResponse
 	var minerInfo commands.MinerInfo
 
 	fmt.Println("Fetching antminer system info for IP:", ip)
-	response, err := commands.GetSystemInfo(ip)
+	response, err := antminers.GetSystemInfo(ip)
 
 	if err != nil {
 		return minerInfo, err
 	}
 
 	fmt.Println("Fetching antminer summary for IP:", ip)
-	summary, err := commands.GetSummary(ip)
+	summary, err := antminers.GetSummary(ip)
 
 	if err != nil {
 		return minerInfo, err
 	}
 
 	printer := message.NewPrinter(language.AmericanEnglish)
-	hashrate := printer.Sprintf("%.2f", summary.SUMMARY[0].MHS5S/1000000)
+	hashrate := printer.Sprintf("%.2f", summary.SUMMARY[0].Rate5S/1000)
 
 	minerInfo.MinerType = response.Minertype
 	minerInfo.Ip = ip

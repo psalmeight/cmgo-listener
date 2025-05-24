@@ -2,6 +2,7 @@ package miners
 
 import (
 	"cmgo-listener/commands"
+	"cmgo-listener/commands/whatsminers"
 	"context"
 	"fmt"
 
@@ -13,7 +14,7 @@ func TryWhatsminer(ctx context.Context, ip string, port int, mac string) (comman
 	var minerInfo commands.MinerInfo
 
 	fmt.Println("Fetching whatsminer devdetails for IP:", ip)
-	devDetails, err := commands.GetDevDetails(ip)
+	devDetails, err := whatsminers.GetDevDetails(ip)
 	model := devDetails.Devdetails[0].Model
 
 	if err != nil {
@@ -21,19 +22,19 @@ func TryWhatsminer(ctx context.Context, ip string, port int, mac string) (comman
 	}
 
 	fmt.Println("Fetching whatsminer miner info for IP:", ip)
-	miner, err := commands.GetMinerInfo(ip)
+	miner, err := whatsminers.GetMinerInfo(ip)
 
 	if err != nil {
 		return minerInfo, err
 	}
 	fmt.Println("Fetching whatsminer summary for IP:", ip)
-	summary, err := commands.GetSummary(ip)
+	summary, err := whatsminers.GetSummary(ip)
 
 	if err != nil {
 		return minerInfo, err
 	}
 	fmt.Println("Fetching whatsminer status for IP:", ip)
-	status, err := commands.GetStatus(ip)
+	status, err := whatsminers.GetStatus(ip)
 	if err != nil {
 		return minerInfo, err
 	}

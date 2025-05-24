@@ -58,6 +58,8 @@ func FetchCommand[T any](command string, response T, p *Profile) error {
 
 	body := resp.Body()
 
+	println(string(body))
+
 	err = json.Unmarshal(body, &response)
 	if err != nil {
 		return errorHandler("Error parsing response body", err)

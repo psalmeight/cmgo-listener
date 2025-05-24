@@ -1,7 +1,7 @@
-package commands
+package antminers
 
 import (
-	"fmt"
+	"cmgo-listener/commands"
 	"net"
 )
 
@@ -25,12 +25,11 @@ type SystemInfoResponse struct {
 func GetSystemInfo(ip string) (SystemInfoResponse, error) {
 	var response SystemInfoResponse
 
-	err := FetchCommand("get_system_info", &response, &Profile{
+	err := commands.FetchCommand("get_system_info", &response, &commands.Profile{
 		IP:   net.IPAddr{IP: net.ParseIP(ip)},
 		User: "root",
 		Pass: "root",
 	})
-	fmt.Println(response)
 
 	if err != nil {
 		return response, err
