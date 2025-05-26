@@ -39,7 +39,7 @@ func errorHandler(message string, err error) error {
 }
 
 func FetchCommand[T any](command string, response T, p *Profile) error {
-	url := fmt.Sprintf("http://%s/cgi-bin/%s.cgi", p.IP.String(), command)
+	url := fmt.Sprintf("http://%s/%s.cgi", p.IP.String(), command)
 
 	client := resty.New()
 	client.SetTimeout(10 * time.Second)
@@ -60,10 +60,10 @@ func FetchCommand[T any](command string, response T, p *Profile) error {
 
 	println(string(body))
 
-	err = json.Unmarshal(body, &response)
-	if err != nil {
-		return errorHandler("Error parsing response body", err)
-	}
+	// err = json.Unmarshal(body, &response)
+	// if err != nil {
+	// 	return errorHandler("Error parsing response body", err)
+	// }
 
 	return nil
 }

@@ -34,6 +34,7 @@ const (
 	AntMinerPort   = 14235
 	WhatsMinerPort = 8888
 	GoldshellPort  = 1314
+	AvalonPort     = 1111
 )
 
 // Listener {
@@ -165,6 +166,11 @@ func (app *App) Probe(port string, message string) commands.MinerInfo {
 	} else if intPort == GoldshellPort {
 		intPort, _ := strconv.Atoi(port)
 		minerInfo, err = miners.TryGoldshell(app.ctx, "", intPort, "", message)
+	} else if intPort == AvalonPort {
+		var ipMac []string = strings.Split(message, ",")
+		if len(ipMac) > 0 {
+			minerInfo, err = miners.TryAvalon(app.ctx, ipMac[0], intPort, ipMac[1])
+		}
 	}
 
 	if err != nil {

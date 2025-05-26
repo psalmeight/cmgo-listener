@@ -45,7 +45,7 @@ const ports = [
   { port: 8888, firmware: "Whatsminer", disabled: true },
   { port: 1314, firmware: "Goldshells", disabled: true },
   { port: 0, firmware: "Canaan", disabled: true },
-  { port: 0, firmware: "Avalon", disabled: true },
+  { port: 1111, firmware: "Avalon", disabled: true },
 ];
 
 interface RowInfo {
