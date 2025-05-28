@@ -2,7 +2,7 @@ import { EmptyState, VStack } from "@chakra-ui/react";
 import { FiInbox, FiWifi } from "react-icons/fi";
 import { RowInfo } from "./table-mappings";
 import FadingText from "../FadingText";
-import { Card } from "../Card";
+import { Card } from "../ui";
 
 interface EmptyTableStateProps {
   listening: boolean;
@@ -10,7 +10,7 @@ interface EmptyTableStateProps {
 
 export const EmptyTableState = ({ listening }: EmptyTableStateProps) => {
   return listening ? (
-    <Card>
+    <Card my={4}>
       <EmptyState.Root height={400}>
         <EmptyState.Content>
           <EmptyState.Indicator>
@@ -26,7 +26,7 @@ export const EmptyTableState = ({ listening }: EmptyTableStateProps) => {
       </EmptyState.Root>
     </Card>
   ) : (
-    <Card>
+    <Card my={4}>
       <EmptyState.Root height={400}>
         <EmptyState.Content>
           <EmptyState.Indicator>

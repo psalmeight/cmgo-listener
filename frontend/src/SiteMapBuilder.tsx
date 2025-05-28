@@ -2,7 +2,7 @@ import { Box, Flex, Grid, GridItem, Heading, Image, Separator, Stack, Text } fro
 import SiteMapper from "./SiteMapper";
 import { RawMessages } from "./RawMessages";
 import logo from "./assets/images/logo.svg";
-import { Card } from "./Card";
+import { Card } from "./ui";
 
 const SiteMapBuilder = () => {
   return (

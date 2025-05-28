@@ -1,8 +1,7 @@
 import { IconButton, Stack, Table, Text } from "@chakra-ui/react";
 import { FiTrash2 } from "react-icons/fi";
 import { EmptyTableState } from "./empty-table-state";
-import { Input } from "../ui/input";
-import { Card } from "../Card";
+import { Input, Card } from "../ui";
 
 export interface RowInfo {
   id: number;
@@ -43,7 +42,7 @@ export const TableMappings = ({ tableData, setTableData, listening }: TableMappi
   if (listening && tableData.length === 0) return <EmptyTableState listening={true} />;
 
   return (
-    <Card>
+    <Card my={4}>
       <Table.ScrollArea borderWidth="1px" rounded="md" height={400}>
         <Table.Root size="sm" stickyHeader striped showColumnBorder>
           <Table.Header>
