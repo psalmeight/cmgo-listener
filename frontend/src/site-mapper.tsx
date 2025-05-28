@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Box, Field, Flex, Popover, Portal, Stack, Switch } from "@chakra-ui/react";
+import { Box, Field, Flex, Popover, Portal, Stack } from "@chakra-ui/react";
 import { ExportToCsv, ReadyListener, StartListeningToPorts } from "../wailsjs/go/main/App";
 import { EventsOn, EventsOff } from "../wailsjs/runtime/runtime";
 import { commands } from "../wailsjs/go/models";
