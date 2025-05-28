@@ -7,16 +7,15 @@ import { Card } from "./Card";
 const SiteMapBuilder = () => {
   return (
     <Box>
-      <Heading as="h1" m={5}>
+      <Heading as="h1" p={5}>
         <Flex justify="space-between">
           <Flex spaceX={2} align="center">
             <Image src={logo} h={50} /> <Separator orientation="vertical" height="10" /> <Text>IP Reporter</Text>
           </Flex>
-          {/* {listening && <FadingText />} */}
         </Flex>
       </Heading>
 
-      <Grid templateColumns="repeat(3, 1fr)" gap="6">
+      <Grid templateColumns="repeat(3, 1fr)" gap="6" mx={5}>
         <GridItem colSpan={2}>
           <Card>
             <SiteMapper />

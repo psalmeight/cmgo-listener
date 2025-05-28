@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Box, Button, Field, Flex, Input, Popover, Portal, Stack, Switch } from "@chakra-ui/react";
+import { Box, Field, Flex, Popover, Portal, Stack, Switch } from "@chakra-ui/react";
 import { ExportToCsv, ReadyListener, StartListeningToPorts } from "../wailsjs/go/main/App";
 import { EventsOn, EventsOff } from "../wailsjs/runtime/runtime";
 import { commands } from "../wailsjs/go/models";
@@ -8,6 +8,9 @@ import { v4 as uuid } from "uuid";
 import { mkConfig, generateCsv, asString } from "export-to-csv";
 import { RowInfo, TableMappings } from "./site-mapper/table-mappings";
 import { RackConfigFields } from "./site-mapper/rack-config-fields";
+
+import { Button, Input } from "./ui";
+
 const csvConfig = mkConfig({ useKeysAsHeaders: true });
 const addNewLine = (s: string): string => s + "\n";
 const buttonStyles = {
@@ -133,44 +136,23 @@ const SiteMapper = () => {
   };
 
   return (
-    <Flex p={5} direction="column">
-      <Box m={5}>
-        <Flex spaceX={2} mb={5} align="flex-end">
-          <RackConfigFields
-            container={container}
-            setContainer={setContainer}
-            rack={rack}
-            setRack={setRack}
-            row={row}
-            setRow={setRow}
-            column={column}
-            setColumn={setColumn}
-            autoIncrement={autoIncrement}
-            skip={skip}
-          />
-        </Flex>
-        <Flex mb={5} justify="flex-end" gap={4}>
-          <Button
-            size="sm"
-            variant="subtle"
-            onClick={() => {
-              setTableData([]);
-            }}
-          >
-            Clear Table
-          </Button>
-          <Switch.Root
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setAutoIncrement(e.target.checked);
-            }}
-          >
-            <Switch.HiddenInput />
-            <Switch.Control>
-              <Switch.Thumb />
-            </Switch.Control>
-            <Switch.Label>Autoincrement Column</Switch.Label>
-          </Switch.Root>
-        </Flex>
+    <Flex p={4} direction="column">
+      <RackConfigFields
+        container={container}
+        setContainer={setContainer}
+        rack={rack}
+        setRack={setRack}
+        row={row}
+        setRow={setRow}
+        column={column}
+        setColumn={setColumn}
+        autoIncrement={autoIncrement}
+        setAutoIncrement={setAutoIncrement}
+        skip={skip}
+        clearTable={() => setTableData([])}
+      />
+
+      <Box>
         <TableMappings tableData={tableData} setTableData={setTableData} listening={listening} />
       </Box>
       <Flex align="flex-end" spaceX={2}>

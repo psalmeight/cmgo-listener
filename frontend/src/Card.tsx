@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 export const Card = ({ children }: { children: ReactNode }) => {
   return (
     <CustomCard.Root>
-      <CustomCard.Body>{children}</CustomCard.Body>
+      <CustomCard.Body p={0}>{children}</CustomCard.Body>
     </CustomCard.Root>
   );
 };
