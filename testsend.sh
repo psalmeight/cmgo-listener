@@ -1,5 +1,6 @@
 #!/bin/bash
-echo "10.1.4.12,70:06:92:54:51:3b" | socat - UDP-DATAGRAM::1111
+echo "10.31.101.113,02:13:77:EA:C3:ED" | socat - UDP-DATAGRAM::14235
+echo "10.31.101.1,02:5A:A9:18:2F:70" | socat - UDP-DATAGRAM::14235
 # echo "10.1.1.11,62:6C:1B:9B:70:05" | socat - UDP-DATAGRAM::14235
 # echo "10.1.1.13,02:4C:B2:DF:B6:F6" | socat - UDP-DATAGRAM::14235
 # echo "10.1.1.54,02:E4:E6:C6:3A:78" | socat - UDP-DATAGRAM::14235

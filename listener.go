@@ -148,7 +148,7 @@ func (lm *Listener) listen(conn *net.UDPConn, port int) {
 }
 
 func (app *App) Probe(port string, message string) commands.MinerInfo {
-
+	runtime.EventsEmit(app.ctx, "rawMessageReceived", message)
 	var minerInfo commands.MinerInfo
 	var err error
 	intPort, _ := strconv.Atoi(port)
