@@ -1,6 +1,6 @@
 import { Box, Flex, Grid, GridItem, Heading, Image, Separator, Stack, Text } from "@chakra-ui/react";
-import SiteMapper from "./SiteMapper";
-import { RawMessages } from "./RawMessages";
+import SiteMapper from "./site-mapper";
+import { RawMessages } from "./raw-messages";
 import logo from "./assets/images/logo.svg";
 import { Card } from "./ui";
 

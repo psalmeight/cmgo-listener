@@ -1,4 +1,4 @@
-import { Card, Stack, StackSeparator, Table, Text } from "@chakra-ui/react";
+import { Table, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { EventsOff, EventsOn } from "../wailsjs/runtime/runtime";
 
