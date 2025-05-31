@@ -22,8 +22,7 @@ const ports = [
   { port: 14235, firmware: "Antminer", disabled: true },
   { port: 8888, firmware: "Whatsminer", disabled: true },
   { port: 1314, firmware: "Goldshells", disabled: true },
-  { port: 0, firmware: "Canaan", disabled: true },
-  { port: 1111, firmware: "Avalon", disabled: true }
+  { port: 0, firmware: "Avalon", disabled: false }
 ];
 
 const SiteMapper = () => {

@@ -1,6 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import SiteMapBuilder from "./SiteMapBuilder";
+import SiteMapBuilder from "./site-map-builder";
 
 import { ChakraProvider, createSystem, defaultConfig, defineConfig } from "@chakra-ui/react";
 

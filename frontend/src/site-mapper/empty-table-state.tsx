@@ -1,7 +1,6 @@
 import { EmptyState, VStack } from "@chakra-ui/react";
 import { FiInbox, FiWifi } from "react-icons/fi";
-import { RowInfo } from "./table-mappings";
-import FadingText from "../FadingText";
+import FadingText from "../fading-text";
 import { Card } from "../ui";
 
 interface EmptyTableStateProps {

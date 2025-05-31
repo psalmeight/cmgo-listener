@@ -13,7 +13,7 @@ export const RawMessages = () => {
     };
   }, []);
   return (
-    <Table.Root showColumnBorder w={300}>
+    <Table.Root showColumnBorder>
       <Table.Header>
         <Table.Row>
           <Table.ColumnHeader>Raw Message</Table.ColumnHeader>
